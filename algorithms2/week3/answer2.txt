@@ -1,0 +1,7 @@
+maximum value
+2595819
+
+real	35m2.214s
+user	25m27.656s
+sys	1m25.685s
+Nuria-Ruizs-MacBo
