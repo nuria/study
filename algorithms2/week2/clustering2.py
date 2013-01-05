@@ -1,12 +1,16 @@
 
-#In this programming problem and the next you'll code up the clustering algorithm from lecture for computing a max-spacing k-clustering. Download the text file here. This file describes a distance function (equivalently, a complete graph with edge costs). It has the following format:
-# [number_of_nodes]
-#[edge 1 node 1] [edge 1 node 2] [edge 1 cost]
-#[edge 2 node 1] [edge 2 node 2] [edge 2 cost]
-#There is one edge (i,j) for each pair 
+#In this question your task is again to i
+#run the clustering algorithm from lecture, 
+#but on a MUCH bigger graph. 
+#So big, in fact, that the distances (i.e., edge costs) are only defined implicitly, rather than being provided as an explicit list.
+#The data set is here. The format is:
+#[# of nodes] [# of bits for each node's label]
+#[first bit of node 1] ... [last bit of node 1]
+#[first bit of node 2] ... [last bit of node 2]
+#For example, the third line of the file "0 1 1 0 0 1 1 0 0 1 0 1 1 1 1 1 1 0 1 0 1 1 0 1" denotes the 24 bits associated with node #2.
+#The distance between two nodes u and v in this problem is defined as the Hamming distance--- the number of differing bits --- between the two nodes' labels. For example, the Hamming distance between the 24-bit label of node #2 above and the label "0 1 0 0 0 1 0 0 0 1 0 1 1 1 1 1 1 0 1 0 0 1 0 1" is 3 (since they differ in the 3rd, 7th, and 21st bits).
 
-#Your task in this problem is to run the clustering algorithm 
-#from lecture on this data set, where the target number k of clusters is set to 4. What is the maximum spacing of a 4-clustering?
+#The question is: what is the largest value of k such that there is a k-clustering with spacing at least 3? That is, how many clusters are needed to ensure that no pair of nodes with all but 2 bits in common get split into different clusters?
 
 
 import csv as csv
@@ -15,16 +19,11 @@ import heapq as hp
 # will find out whether this new edge starts a cluster of its own 
 # or rather fuses two clusters or plainly gets added to a new cluster
 # might modify the cluster set and thus it is returned
-
+# is there a better data structure? this works but ...
 def addNewEdgeToClusterSet(clusters,edge):
 	distance = edge[0];
 	n1 = edge[1][0]
 	n2 = edge[1][1]
-	
-	print "Initial clusters keys"
-	for c in clusters:
-		print c.keys();
-
 	fuse =[]
 	notFuse =[]
 	
@@ -36,17 +35,12 @@ def addNewEdgeToClusterSet(clusters,edge):
 
 
 	if len(fuse)>0:
-		#print "We need to fuse the following clusters"
-		#print fuse;
-		#print "with"
-		#print edge
 		clusters = notFuse;
 		#merge the dictionaries
 		if len(fuse)>1:
 			f = {}
 			for i in range(len(fuse)):
 				f.update(fuse[i])
-				print f
 		else:
 			f = fuse[0]
 		f = addNodeToGraph(f,distance,n1,n2)
@@ -55,15 +49,10 @@ def addNewEdgeToClusterSet(clusters,edge):
 		# edge should be added to a cluster of its own
 		# doesn't seem to be in any cluster 
 		C = {};
-
-		print "Adding node to its own graph"
 		C = addNodeToGraph(C,distance,n1,n2);
 		clusters.append(C);
 
 
-	print "Resulting clusters keys"
-	for c in clusters:
-		print c.keys();
 
 	return clusters
 
@@ -72,16 +61,9 @@ def doesEdgeBelongToCluster(cluster,edge):
 	distance = edge[0];
 	n1 = edge[1][0]
 	n2 = edge[1][1]
-	#print "Do nodes"
-	#print n1
-	#print n2
-	#print "belong to cluster"
-	#print cluster
 	if(cluster.get(n1)==None and cluster.get(n2)==None):
-		#print "no"
 		return False;
 	else:
-		#print 'yes'
 		return True;
 	
 def addNodeToGraph(G,distance,n1,n2):
@@ -94,12 +76,25 @@ def addNodeToGraph(G,distance,n1,n2):
 	G[n2].append((n1,distance))
 	return G
 
+# calculate hamming distance uaing strings
+# converts each string to an array and calculates 
+# distance by comparing each character
+def hamming_distance(s1, s2):
+	if s1 == s2:
+		return 0
+	sum = 0
+	for ch1, ch2 in zip(s1, s2):
+		if ch1 != ch2:
+			sum = sum +1
+			if sum >3:
+				#exit early
+				return sum
+	return sum
 
 
 
-k = 4; 
 					
-f  = open('./clustering.txt', "rb")
+f  = open('./clustering2.txt', "rb")
 reader = csv.reader(f, delimiter=' ', quoting=csv.QUOTE_NONE)
 
 # each vertext points to edges incident on it
@@ -113,27 +108,50 @@ clusters =[]; # we know size of clusters has to be 4 maximum
 
 
 h =[];# heap that will store edges by distance
+nodes = []; #nodes array
 
+#read all nodes
 for row in reader: 
-	n1 = int(row[0])
-	n2 = int(row[1])
-	distance = int(row[2])
-	G = addNodeToGraph(G,distance,n1,n2);
-	hp.heappush(h,(distance,[n1,n2]))
+	n1 = row[0]
+	n1.strip()
+	nodes.append(n1)	
 
+# we really only need to calculate distances
+# up to three, nodes that are further appart than that we can disregard
+l = len(nodes)
 
+# to use this you need to remove duplicates
+for i in range(l):
+	n1 = nodes[i]
+	
+	for j in range(i+1,l):
+		n2 = nodes[j]
+		distance = hamming_distance(n1,n2)
+		if distance <=3:
+			print n1,n2,distance
+			G = addNodeToGraph(G,distance,n1,n2);
+			hp.heappush(h,(distance,[n1,n2]))
 
 #now we have all data into a graph
-
 size = len(G)
+print G
+
+#nodes that we know will not be clustered
+standAloneNodes = len(nodes)-len(G)
+
+print "stand Alone nodes"
+print standAloneNodes
 
 print " Created heap and graph";
-#print G
 
 actualNumberOfClusters = len(G);
 
 
-while  actualNumberOfClusters > 4:
+distance = 0
+maxDistance =3
+#whether we are at the beginning or we have a distance less than minimum
+while (len(clusters)==0 or distance <=maxDistance) and len(h)>0:
+	startClusters = len(clusters)+len(G)
 	edge = hp.heappop(h);
 	clusters = addNewEdgeToClusterSet(clusters,edge)
 	distance = edge[0];
@@ -143,65 +161,26 @@ while  actualNumberOfClusters > 4:
 	# delete nodes from main graph if pertains  which is the last cluster
 	if (G.get(n1)!=None):
 		del G[n1]		
-		#print "deleting" 
-		#print n1
 	if (G.get(n2)!=None):
-		#print "deleting"
-		#print n2
 		del G[n2]
-	actualNumberOfClusters = len(clusters)+len(G)
-		
-
-
-print "final set of clusters"
-#print clusters;
-#now append whatever is left in G
-
-
-
-list = G.keys() ; # each key would be a cluster
-
-for l in list:
-	C = {}
-	C[l] = G[l]
-	clusters.append(C)
-
-# out of curiosity print the number of nodes of each cluster
-
-print "number of nodes in each cluster"
-
-for cluster in clusters:
-	nodes = cluster.keys()
-	print nodes
-
-
-# keep pulling from heap, 1st edge that crossses the cut
-# is the maximun distance
-distance =0;
-
-#print h
-
-found = False;
-while True and not found:
-	edge = hp.heappop(h)
-	distance = edge[0];
-	n1 = edge[1][0];
-	n2 = edge[1][1];
-	print edge;
-	for cluster in clusters:
-		nodes = cluster.keys()
-		print 'nodes'
-		print nodes
-		print 'n1'
-		print cluster.get(n1); 
-		print 'n2'
-		print cluster.get(n2)
-		if (cluster.get(n1)==None and cluster.get(n2)!=None ) or (cluster.get(n2)==None and cluster.get(n1)!=None): 
-			found = True;
-		
+	endClusters = len(clusters)+len(G)
+	if distance == maxDistance and startClusters >endClusters:
+		finalClusters = startClusters
+		break
+	elif len(h)==0:
+		finalClusters = endClusters
 
 
 
-print "distance"
-		
-print distance;
+print "last item joined two clusters, so max distance is 3 when we have"
+print finalClusters
+print "stand alone"
+print standAloneNodes
+print "total number of clusters"
+print standAloneNodes+finalClusters
+exit()
+
+
+
+
+

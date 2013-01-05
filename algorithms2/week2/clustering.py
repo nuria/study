@@ -21,9 +21,9 @@ def addNewEdgeToClusterSet(clusters,edge):
 	n1 = edge[1][0]
 	n2 = edge[1][1]
 	
-	print "Initial clusters keys"
-	for c in clusters:
-		print c.keys();
+#	print "Initial clusters keys"
+#	for c in clusters:
+#		print c.keys();
 
 	fuse =[]
 	notFuse =[]
@@ -46,7 +46,7 @@ def addNewEdgeToClusterSet(clusters,edge):
 			f = {}
 			for i in range(len(fuse)):
 				f.update(fuse[i])
-				print f
+#				print f
 		else:
 			f = fuse[0]
 		f = addNodeToGraph(f,distance,n1,n2)
@@ -56,14 +56,14 @@ def addNewEdgeToClusterSet(clusters,edge):
 		# doesn't seem to be in any cluster 
 		C = {};
 
-		print "Adding node to its own graph"
+#		print "Adding node to its own graph"
 		C = addNodeToGraph(C,distance,n1,n2);
 		clusters.append(C);
 
 
-	print "Resulting clusters keys"
-	for c in clusters:
-		print c.keys();
+#	print "Resulting clusters keys"
+#	for c in clusters:
+#		print c.keys();
 
 	return clusters
 
@@ -127,7 +127,7 @@ for row in reader:
 
 size = len(G)
 
-print " Created heap and graph";
+#print " Created heap and graph";
 #print G
 
 actualNumberOfClusters = len(G);
@@ -170,9 +170,9 @@ for l in list:
 
 print "number of nodes in each cluster"
 
-for cluster in clusters:
-	nodes = cluster.keys()
-	print nodes
+#for cluster in clusters:
+#	nodes = cluster.keys()
+#	print nodes
 
 
 # keep pulling from heap, 1st edge that crossses the cut
@@ -187,15 +187,15 @@ while True and not found:
 	distance = edge[0];
 	n1 = edge[1][0];
 	n2 = edge[1][1];
-	print edge;
+	# print edge;
 	for cluster in clusters:
 		nodes = cluster.keys()
-		print 'nodes'
-		print nodes
-		print 'n1'
-		print cluster.get(n1); 
-		print 'n2'
-		print cluster.get(n2)
+#		print 'nodes'
+#		print nodes
+#		print 'n1'
+#		print cluster.get(n1); 
+#		print 'n2'
+#		print cluster.get(n2)
 		if (cluster.get(n1)==None and cluster.get(n2)!=None ) or (cluster.get(n2)==None and cluster.get(n1)!=None): 
 			found = True;
 		

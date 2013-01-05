@@ -2,34 +2,42 @@
 #and the next you'll code up the knapsack algorithm from lecture
 
 import csv as csv
+import md5
 
+def knapsack(i,size,value,weight,d):
+	keySrc = md5.new();
 
-def knapsack(i,size,value,weight,m):
-	if m[i][size] != 0: 
-		return m[i][size]
+	keySrc.update(str(i)+"-"+str(size));
 	
+	key = keySrc.digest();
+
+
+	if d.get(key)!=None: 
+		return d[key]
+
+
 	wi = weight[i];
 	vi = value [i];
 	if i==0:
 		if wi <size:
-			m[0][size] = vi;
+			d[key]= vi;
 			return vi;
 		else:
-			m[0][size]= 0
+			d[key] = 0
 			return 0;
 
 	subproblem1 =0
 	if wi<= size:
-		subproblem1 = vi+knapsack(i-1,size-wi,value,weight,m)
+		subproblem1 = vi+knapsack(i-1,size-wi,value,weight,d)
 	
-	subproblem2= knapsack(i-1,size,value,weight,m)
+	subproblem2= knapsack(i-1,size,value,weight,d)
 	
 	if subproblem2> subproblem1:
-		m[i][size] = subproblem2  
+		d[key] = subproblem2  
 	else: 
-		m[i][size] = subproblem1
+		d[key] = subproblem1
 
-	return m[i][size]
+	return d[key]
 
 
 def iterative(value, weight,m,n,W):
@@ -37,6 +45,8 @@ def iterative(value, weight,m,n,W):
 	for i in range(1,n+1):
 		wi = weight[i-1]
 		vi = value[i-1]
+		# we are using a matrix with three rows 
+		# are recycling them, brough time down from 25 mins to 8 mins
 		if i<3:
 			j =i
 			prior = i-1
@@ -67,21 +77,28 @@ def iterative(value, weight,m,n,W):
 
 
 
-f = open('./knapsack1Sorted.txt');
+f = open('./knapsack2Sorted.txt');
 reader = csv.reader(f,delimiter=" ",quoting=csv.QUOTE_NONE)
 
 value = [];
 weight =[]
-W = 10000;
-n = 100
+
+#W = 10000;
+#n = 100
 
 
 
-#W = 2000000;#knapsack size
-#n = 500 ;#total number of items
+W = 2000000;#knapsack size
+n = 500 ;#total number of items
 
+#values testcase1
 #W = 10;
 #n = 4
+
+#values test case2
+#W = 750
+#n = 15
+
 
 # matrix [i,w] maximun -combined- value
 # of any subset of items from {1..i} of size 
@@ -91,7 +108,7 @@ n = 100
 # using list comprehensions in python
 # this is initializing the matrix all to 0
 # trying to optimize and only keeping three rows
-m =  [[0 for w in range(W)] for i in range(3)]
+#m =  [[0 for w in range(W)] for i in range(3)]
 
 for row in reader:
 	value.append(int(row[0]))
@@ -101,9 +118,10 @@ for row in reader:
 
 
 print "maximum value"
-max = iterative(value, weight,m,n,W)
-# iterative takes 25 mins but recursive takes even longer
+#max = iterative(value, weight,m,n,W)
 
-#max = knapsack(n-1,W,value,weight,m)
+# let's try to use a dictionary for recursion case:
+d = {}
+max = knapsack(n-1,W-1,value,weight,d)
 
 print max
