@@ -3,6 +3,7 @@
 
 import csv as csv
 import md5
+import time
 
 def knapsack(i,size,value,weight,d):
 	keySrc = md5.new();
@@ -11,7 +12,7 @@ def knapsack(i,size,value,weight,d):
 	
 	key = keySrc.digest();
 
-
+	# storing only the keys we need in a hashmap
 	if d.get(key)!=None: 
 		return d[key]
 
@@ -77,7 +78,7 @@ def iterative(value, weight,m,n,W):
 
 
 
-f = open('./knapsack2Sorted.txt');
+f = open('./knapsack2.txt');
 reader = csv.reader(f,delimiter=" ",quoting=csv.QUOTE_NONE)
 
 value = [];
@@ -85,8 +86,6 @@ weight =[]
 
 #W = 10000;
 #n = 100
-
-
 
 W = 2000000;#knapsack size
 n = 500 ;#total number of items
@@ -110,6 +109,7 @@ n = 500 ;#total number of items
 # trying to optimize and only keeping three rows
 #m =  [[0 for w in range(W)] for i in range(3)]
 
+t0 = time.time();
 for row in reader:
 	value.append(int(row[0]))
 	weight.append(int(row[1]))
@@ -124,4 +124,8 @@ print "maximum value"
 d = {}
 max = knapsack(n-1,W-1,value,weight,d)
 
+t1 = time.time();
+
 print max
+
+print "time knapsacking" +str(t1-t0)+" secs"

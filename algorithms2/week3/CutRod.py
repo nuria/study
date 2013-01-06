@@ -39,14 +39,21 @@ def cutRod1(p,n,Q):
 	else: 
 		q =-1000
 		for i in range(1,n+1):
+			print "size"+str(n-i)+"Length"+str(i)
 			maxRevenueSubproblem = p[i]+ cutRod1(p,n-i,Q)
 			if (maxRevenueSubproblem> q):
 				q = maxRevenueSubproblem
+			print "value ="+str(q)
 	Q[n] = q
 	return q
 
 
 def cutRod2(p,n):
+	# key is to see a decomposition
+	# of  a first piece of length i
+	# and a remainling piece of n-i
+	# only the remainder might be further divided
+	# bottom up problems
 	Q = {}
 	Q[0] = 0
 	
@@ -54,11 +61,14 @@ def cutRod2(p,n):
 	for j in range(1,n+1):
 		q = -1
 		for i in range (1,j+1):
+			# this is working the decomposition
+			# for size "s" of i pieces
 			subProblem = p[i]+Q[j-i]
-			print " i="+str(i)+"j= "+str(j)+"revenue="+ str(subProblem)	
+			print "size= "+str(j)+"length= "+str(i)+" revenue="+ str(subProblem)	
 			if subProblem>q:
 				 q = subProblem
 				 S[j] = i;
+			print "stored revenue "+str(q)
 		Q[j] = q
 			
 
@@ -77,13 +87,12 @@ for i in range(1,10+1):
 
 
 # now try to compute the solution at each level
-maxRevenue = cutRod2(P,10)
+#maxRevenue = cutRod2(P,10)
 print "max revenue"
-print maxRevenue
 maxRevenue = cutRod1(P,10,Q)
 print "max revenue"
 print maxRevenue
 
 
-print cutRod1(P,4,Q);
+#print cutRod1(P,4,Q);
 
