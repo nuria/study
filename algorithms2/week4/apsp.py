@@ -10,19 +10,80 @@
 #Your task is to compute the "shortest shortest path". 
 #Precisely, you must first identify which, if any, of the three graphs have no negative cycles.
 import csv as csv;
+import heapq as hp;
 
+INFINITY = 100000;
 # for jhonson's algorithm, adds an 's' edge
 # with edge cost 0
 # since we are keeping track of graph like
-# G[head][tail]
+# G[head][tail] (tail) ------> (head)
 # we are adding a G[s][v] =0  for all Vertexes v in G
 def addSVertex(G,v):
 	vertexes = G.keys()
 	v =  v+1;#assuming sequential indexes 
 	G[v] ={}
-	for w in vertexes:
+	for w in G.keys():
 		G[w][v] = 0
 	return G,v
+
+
+def removeSVertex(G,v):
+	del G[v]
+	for w in G.keys():
+		del G[w][v]
+	v = v-1
+	return G,v
+
+# initialize heap with distances from s to the rest of nodes in G
+# graph
+# we are building the heap everytime
+# should improve that
+# distances calculated so far
+def buildHeap(G,X,s,D):
+ h = []
+ infinity = INFINITY
+ print X
+ for head in G.keys():
+	#skip vertexes already in X
+	if X.get(head)!=None:
+		continue;
+	for  tail in G.get(head).keys():
+		if D[tail]!= INFINITY:
+			cost = D[tail] + G[head][tail]	
+		else:
+			cost = INFINITY
+		hp.heappush(h,(head,cost));
+
+
+ return h;
+		
+
+# returns shortest paths from all vertexes to vertex s
+def dijistra(G,s,v):
+	X = {}; # explored nodes
+	D = []
+	#initialize all = INFINITY
+	# note array is off is calculating distances from '0'
+	for i in range(v+1):
+		D.append(INFINITY);
+	D[s] = 0
+	X[s] =1;
+	h = buildHeap(G,X,s,D);
+	while len(X)!= v :
+		if len(h)<1:
+			print "Exiting, some nodes were not rechable."
+			break
+		min = hp.heappop(h);
+		vertex = min[0];
+		cost = min[1];
+		D[vertex]  = cost;
+		X[vertex] = 1;
+		h = buildHeap(G,X,s,D)
+
+	
+	return D; 
+
+#----------------------------  main program ---------------------
 
 
 f = open('./testCase1.txt','rb');
@@ -50,14 +111,16 @@ for row in reader:
 	G[head][tail]= weight;
 
 # now add S vertex
-
-G,v = addSVertex(G,v) #can identify vertex by v+1
-
+print "Original graph"
 print G
+G,v = addSVertex(G,v) #can identify vertex by v+1
+print "G+s vertex"
+print G
+#print G
 
 
 #print G
-infinity = 1000000;
+infinity = INFINITY
 
 M =  [[infinity for w in range(v+1)] for i in range(2)] #space optimization,keep only two rows
 
@@ -69,7 +132,7 @@ destinationSet = G.keys();
 
 #print destinationSet
 
-# Bellman Ford,running it for v iterations
+# Bellman Ford algorithm running it for v iterations
 # to see if there is a cycle
 for i in range(1,v+1):
 	for vertex in destinationSet:
@@ -106,10 +169,31 @@ else:
 for j in range(len(last)):
 	if last[j] != prior[j]:
 		print "cycle!!!"
-		break
+		raise SystemExit
 
 # no cycle
 
+print "Here are the mins"
 print prior
-print last 
+print min(prior)
+print min(last)
+
+# Reweighting
+# Pv = M[v]
+# Get graph without "s" vertex
+G,v = removeSVertex(G,v)
+for head in G.keys():
+	for tail in G[head].keys():
+		
+		G[head][tail] = G[head][tail]+last[tail]-last[head]
+
+print G
+
+
+# Dijistra now. 
+# we need to run it for all vertexes, trying one for now
+
+B = dijistra(G,1,v)
+
+print B
 
