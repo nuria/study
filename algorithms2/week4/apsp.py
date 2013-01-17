@@ -10,7 +10,7 @@
 #Your task is to compute the "shortest shortest path". 
 #Precisely, you must first identify which, if any, of the three graphs have no negative cycles.
 import csv as csv;
-import heapq as hp;
+import heapdict as hpdict;
 
 INFINITY = 100000;
 # for jhonson's algorithm, adds an 's' edge
@@ -34,58 +34,82 @@ def removeSVertex(G,v):
 	v = v-1
 	return G,v
 
-# initialize heap with distances from s to the rest of nodes in G
+# toString method is not in heapdict
+def heapToString(h):
+	msg =" heap {"
+	for i in h.keys():
+		msg = msg +" "+str(i)+" :"+str(h[i])
+	return msg+"}"
+
+# heap with distances from s to the rest of nodes in G
 # graph
-# we are building the heap everytime
-# should improve that
-# distances calculated so far
-def buildHeap(G,X,s,D):
- h = []
- infinity = INFINITY
- print X
+# Using a heap from which we 
+# can access items like a hashmap
+# s=vertex we have added to X set
+# D= distances calculated so far
+def buildHeap(G,s,D):
+ h = hpdict.heapdict();
+ h[s] = 0
  for head in G.keys():
-	#skip vertexes already in X
-	if X.get(head)!=None:
+	#skip vertexes in X
+	if head == s:
 		continue;
 	for  tail in G.get(head).keys():
 		if D[tail]!= INFINITY:
 			cost = D[tail] + G[head][tail]	
 		else:
 			cost = INFINITY
-		hp.heappush(h,(head,cost));
+		h[head] = cost;
 
-
+ #print heapToString(h)
  return h;
-		
+
 
 # returns shortest paths from all vertexes to vertex s
-def dijistra(G,s,v):
-	X = {}; # explored nodes
+# G graph G[head][tail]= weight
+# T G[tail] = [] , outgoing edges from a tail
+def dijistra(G,T,s,v):
 	D = []
+	explored = {} #TODO , can we save this explored set and use distances!=INFINITY
 	#initialize all = INFINITY
 	# note array is off is calculating distances from '0'
 	for i in range(v+1):
 		D.append(INFINITY);
 	D[s] = 0
-	X[s] =1;
-	h = buildHeap(G,X,s,D);
-	while len(X)!= v :
-		if len(h)<1:
-			print "Exiting, some nodes were not rechable."
-			break
-		min = hp.heappop(h);
-		vertex = min[0];
-		cost = min[1];
-		D[vertex]  = cost;
-		X[vertex] = 1;
-		h = buildHeap(G,X,s,D)
-
-	
+	explored[s] = 1
+	hp = buildHeap(G,s,D);
+	while len(hp) > 0:
+		smallest = hp.popitem();
+		w = smallest[0];
+		cost = smallest[1];
+		#print "Adding vertex into explored:"+str(w)
+		#print "with distance: "+str(cost)
+		D[w]  = cost;
+		explored[w] = 1;
+		# now update values on heap
+		# get all vertexes outgoing from 'w'
+		# if head of vertex in heap (not explored)
+		#	update cost
+		# if head is explored, remove from heap
+		if T.get(w)==None:
+			#head has no outgoing edges
+			#print str(w)+" has no outgoing edges"
+			continue
+		for v in T.get(w):
+			#print "---updating cost for vertex "+str(v)
+			if explored.get(v)==None:
+				if D[w]==INFINITY:
+					hp[v] = INFINITY
+				else:
+					hp[v]=D[w]+G[v][w]
+				#print "----- to cost"+str(hp[v])	
+		#print heapToString(hp)
 	return D; 
 
 #----------------------------  main program ---------------------
+# Runing Jhonson's algorirthm to find shortest paths
 
-
+#f = open('./g3.txt','rb');
 f = open('./testCase1.txt','rb');
 reader = csv.reader(f,delimiter=' ',quoting=csv.QUOTE_NONE); 
 
@@ -96,9 +120,12 @@ v = int(firstRow[0]);#number of vertexes
 e = int(firstRow[1]); #number of edges
 
 G = {}
+T = {}
 for row in reader: 
 	#build adjacency list,keeping pointers like:
 	# G[head][tail] = weight
+	# T[tail] = [] , this T lookup will be useful in dijistra
+	# space optimization , if tail has no outgoing edges is not present on T
 	#tail ---->head
 	tail = int(row[0])
 	head = int(row[1])
@@ -110,12 +137,16 @@ for row in reader:
 	
 	G[head][tail]= weight;
 
+	if T.get(tail)==None:
+		T[tail] = []
+	T[tail].append(head)
+
 # now add S vertex
 print "Original graph"
-print G
+#print G
 G,v = addSVertex(G,v) #can identify vertex by v+1
 print "G+s vertex"
-print G
+#print G
 #print G
 
 
@@ -154,7 +185,7 @@ for i in range(1,v+1):
 		d = min(d,M[i-1][vertex])
 		M[i][vertex] = d
 			
-
+# look to see if there is a cycle on resul matrix
 # iterate on matrix, if there is no cycle A[n-1,v] == A[n,v]
 # with our space optimization we only have two rows
 
@@ -184,16 +215,42 @@ print min(last)
 G,v = removeSVertex(G,v)
 for head in G.keys():
 	for tail in G[head].keys():
-		
 		G[head][tail] = G[head][tail]+last[tail]-last[head]
-
-print G
+		if G[head][tail] < 0:
+			print "Error! negative lengths after reweighting graph";
+			raise SystemExit
+print "Graph after reweight"
+#print G
 
 
 # Dijistra now. 
+# in order to run dijistra we need to be able to look outgoing vertexes
+# from a given one (in G we are storing incoming vertexes to head like
+# G[head][tail]
+# we need a reverse lookup T[tail][head]
 # we need to run it for all vertexes, trying one for now
+minPath = INFINITY
+minPathOriginal = INFINITY
+for sourceVertex in range(1,v+1):
+	print ">>distances from source vertex"+str(sourceVertex)
+	B = dijistra(G,T,sourceVertex,v)
+	tmpMin = min(B)
+	if tmpMin < minPathOriginal:
+		minPathOriginal = tmpMin
+	#print B
+	for w in range(len(B)):
+		if B[w]==INFINITY:
+			continue
+		B[w] =  B[w]+last[sourceVertex]-last[i]
+	#print B
+	shortestPath = min(B)
+	if shortestPath < minPath:
+		minPath = shortestPath
+	print "min path for now"+str(minPath)
 
-B = dijistra(G,1,v)
+print "shortest shortest path:"
+print minPath
 
-print B
+print "min path original"
+print minPathOriginal
 
