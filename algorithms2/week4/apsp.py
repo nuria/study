@@ -45,21 +45,13 @@ def heapToString(h):
 # graph
 # Using a heap from which we 
 # can access items like a hashmap
-# s=vertex we have added to X set
-# D= distances calculated so far
-def buildHeap(G,s,D):
+# s = source vertex we have added to X set
+def bootstrapHeap(G,s):
  h = hpdict.heapdict();
- h[s] = 0
- for head in G.keys():
-	#skip vertexes in X
-	if head == s:
-		continue;
-	for  tail in G.get(head).keys():
-		if D[tail]!= INFINITY:
-			cost = D[tail] + G[head][tail]	
-		else:
-			cost = INFINITY
-		h[head] = cost;
+
+ for head in T[s]:
+	cost = G[head][s]	
+	h[head] = cost;
 
  #print heapToString(h)
  return h;
@@ -77,32 +69,33 @@ def dijistra(G,T,s,v):
 		D.append(INFINITY);
 	D[s] = 0
 	explored[s] = 1
-	hp = buildHeap(G,s,D);
+	hp = bootstrapHeap(G,s);
 	while len(hp) > 0:
 		smallest = hp.popitem();
 		w = smallest[0];
 		cost = smallest[1];
+		if explored.get(w) != None:
+			continue
+
 		#print "Adding vertex into explored:"+str(w)
 		#print "with distance: "+str(cost)
 		D[w]  = cost;
 		explored[w] = 1;
 		# now update values on heap
-		# get all vertexes outgoing from 'w'
-		# if head of vertex in heap (not explored)
+		# get all edges outgoing from 'w'
+		# if vertext at head of edge is not explored
 		#	update cost
 		# if head is explored, remove from heap
 		if T.get(w)==None:
-			#head has no outgoing edges
 			#print str(w)+" has no outgoing edges"
 			continue
 		for v in T.get(w):
 			#print "---updating cost for vertex "+str(v)
 			if explored.get(v)==None:
-				if D[w]==INFINITY:
-					hp[v] = INFINITY
-				else:
-					hp[v]=D[w]+G[v][w]
-				#print "----- to cost"+str(hp[v])	
+				hp[v]=D[w]+G[v][w]
+				#print "----- to cost"+str(hp[v])
+			elif hp.get(v)!=None: 
+				del hp[v]
 		#print heapToString(hp)
 	return D; 
 
@@ -110,7 +103,7 @@ def dijistra(G,T,s,v):
 # Runing Jhonson's algorirthm to find shortest paths
 
 #f = open('./g3.txt','rb');
-f = open('./testCase1.txt','rb');
+f = open('./testCase5.txt','rb');
 reader = csv.reader(f,delimiter=' ',quoting=csv.QUOTE_NONE); 
 
 
@@ -134,8 +127,13 @@ for row in reader:
 		G[tail] = {};
 	if G.get(head)==None:
 		G[head] = {}
-	
+
+	if G.get(head).get(tail)!=None:
+		# just in case there are double edges, get the minimun one
+		if G.get(head).get(tail)< weight:
+			weight = G.get(head).get(tail)
 	G[head][tail]= weight;
+
 
 	if T.get(tail)==None:
 		T[tail] = []
@@ -143,17 +141,15 @@ for row in reader:
 
 # now add S vertex
 print "Original graph"
-#print G
+print G
+print "Outgoing edges"
+print T
 G,v = addSVertex(G,v) #can identify vertex by v+1
 print "G+s vertex"
-#print G
-#print G
 
+print G
 
-#print G
-infinity = INFINITY
-
-M =  [[infinity for w in range(v+1)] for i in range(2)] #space optimization,keep only two rows
+M =  [[INFINITY for w in range(v+1)] for i in range(2)] #space optimization,keep only two rows
 
 #We will calculate shortest paths from S
 sourceVertex = v;
@@ -166,24 +162,35 @@ destinationSet = G.keys();
 # Bellman Ford algorithm running it for v iterations
 # to see if there is a cycle
 for i in range(1,v+1):
+	#print "budget"+str(i)
 	for vertex in destinationSet:
+		#print "distance for "+str(vertex)
 		# all edges that end at vertex
 		vSet = G[vertex];
-		d = infinity;
+		#print "all edges that end at vertext " +str(vertex)
+		#print vSet
+		d = INFINITY;
 		# space optimization,only working with two rows
-		if i % 2 ==0:
+		if i == 1:
+			j =0
+		elif i % 2 ==0:
 			i = 0
+			j = 1
 		else:
 			i = 1
+			j = 0
 		for w in vSet.keys():
-			if M[i-1][w]==infinity:
-				tmp = infinity
+			#print "calculating from "+str(w)+'---->'+str(vertex)
+			#print "prior distance to "+str(w)+"  "+ str(M[j][w])
+			if M[j][w]==INFINITY:
+				tmp = INFINITY
 			else:
-				tmp = M[i-1][w]+G[vertex][w];
+				tmp = M[j][w]+G[vertex][w];
 			d = min(d,tmp)
 		
-		d = min(d,M[i-1][vertex])
+		d = min(d,M[j][vertex])
 		M[i][vertex] = d
+		#print "distance"+str(d)
 			
 # look to see if there is a cycle on resul matrix
 # iterate on matrix, if there is no cycle A[n-1,v] == A[n,v]
@@ -220,7 +227,7 @@ for head in G.keys():
 			print "Error! negative lengths after reweighting graph";
 			raise SystemExit
 print "Graph after reweight"
-#print G
+print G
 
 
 # Dijistra now. 
@@ -230,19 +237,17 @@ print "Graph after reweight"
 # we need a reverse lookup T[tail][head]
 # we need to run it for all vertexes, trying one for now
 minPath = INFINITY
-minPathOriginal = INFINITY
 for sourceVertex in range(1,v+1):
 	print ">>distances from source vertex"+str(sourceVertex)
 	B = dijistra(G,T,sourceVertex,v)
-	tmpMin = min(B)
-	if tmpMin < minPathOriginal:
-		minPathOriginal = tmpMin
-	#print B
+	print "outcome of dijistra"
+	print B
 	for w in range(len(B)):
 		if B[w]==INFINITY:
 			continue
-		B[w] =  B[w]+last[sourceVertex]-last[i]
-	#print B
+		
+		B[w] =  B[w]-last[sourceVertex]+last[w]
+	print B
 	shortestPath = min(B)
 	if shortestPath < minPath:
 		minPath = shortestPath
@@ -251,6 +256,4 @@ for sourceVertex in range(1,v+1):
 print "shortest shortest path:"
 print minPath
 
-print "min path original"
-print minPathOriginal
 
