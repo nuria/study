@@ -14,3 +14,5 @@ g3
 Here are the mins
 -19
 -19
+
+Shortest shortest path is also -19

@@ -48,7 +48,7 @@ def heapToString(h):
 # s = source vertex we have added to X set
 def bootstrapHeap(G,s):
  h = hpdict.heapdict();
-
+	
  for head in T[s]:
 	cost = G[head][s]	
 	h[head] = cost;
@@ -69,6 +69,10 @@ def dijistra(G,T,s,v):
 		D.append(INFINITY);
 	D[s] = 0
 	explored[s] = 1
+	# if vertext does not have any outfoing edges 
+	# we can return
+	if T.get(s) == None:
+		return D
 	hp = bootstrapHeap(G,s);
 	while len(hp) > 0:
 		smallest = hp.popitem();
@@ -90,9 +94,13 @@ def dijistra(G,T,s,v):
 			#print str(w)+" has no outgoing edges"
 			continue
 		for v in T.get(w):
-			#print "---updating cost for vertex "+str(v)
+			#print "---Checking vertext "+str(v)
 			if explored.get(v)==None:
-				hp[v]=D[w]+G[v][w]
+				# if the node is not the heap yey
+				newCost = D[w]+G[v][w]
+				if hp.get(v)==None or newCost<hp[v]:
+					hp[v]=D[w]+G[v][w]
+				#print "---updating cost for vertex "+str(v)
 				#print "----- to cost"+str(hp[v])
 			elif hp.get(v)!=None: 
 				del hp[v]
@@ -103,7 +111,7 @@ def dijistra(G,T,s,v):
 # Runing Jhonson's algorirthm to find shortest paths
 
 #f = open('./g3.txt','rb');
-f = open('./testCase5.txt','rb');
+f = open('./g3.txt','rb');
 reader = csv.reader(f,delimiter=' ',quoting=csv.QUOTE_NONE); 
 
 
@@ -141,13 +149,12 @@ for row in reader:
 
 # now add S vertex
 print "Original graph"
-print G
+#print G
 print "Outgoing edges"
-print T
+#print T
 G,v = addSVertex(G,v) #can identify vertex by v+1
 print "G+s vertex"
-
-print G
+#print G
 
 M =  [[INFINITY for w in range(v+1)] for i in range(2)] #space optimization,keep only two rows
 
@@ -227,7 +234,7 @@ for head in G.keys():
 			print "Error! negative lengths after reweighting graph";
 			raise SystemExit
 print "Graph after reweight"
-print G
+#print G
 
 
 # Dijistra now. 
@@ -238,20 +245,20 @@ print G
 # we need to run it for all vertexes, trying one for now
 minPath = INFINITY
 for sourceVertex in range(1,v+1):
-	print ">>distances from source vertex"+str(sourceVertex)
+	#print ">>distances from source vertex"+str(sourceVertex)
 	B = dijistra(G,T,sourceVertex,v)
-	print "outcome of dijistra"
-	print B
+	#print "outcome of dijistra"
+	#print B
 	for w in range(len(B)):
 		if B[w]==INFINITY:
 			continue
 		
 		B[w] =  B[w]-last[sourceVertex]+last[w]
-	print B
+	#print B
 	shortestPath = min(B)
 	if shortestPath < minPath:
 		minPath = shortestPath
-	print "min path for now"+str(minPath)
+	#print "min path for now"+str(minPath)
 
 print "shortest shortest path:"
 print minPath

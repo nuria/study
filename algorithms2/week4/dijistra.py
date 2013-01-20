@@ -4,11 +4,7 @@
 # Each subsequent line describes an edge (the first two numbers are its tail and head, respectively) 
 # 1 14 6" represent an edge from 1 to 14 with length 6
 # tail:1, head:14 weight:6
-# and its length (the third number). NOTE: some of the edge lengths are
-# negative.NOTE: These graphs may or may not have negative-cost cycles.
-
-#Your task is to compute the "shortest shortest path". 
-#Precisely, you must first identify which, if any, of the three graphs have no negative cycles.
+# This program uses the heapdict from python for the dijistra implementation
 import csv as csv;
 import heapdict as hpdict;
 INFINITY = 100000;
@@ -27,7 +23,6 @@ def heapToString(h):
 # s = source vertex we have added to X set
 def bootstrapHeap(G,s):
  h = hpdict.heapdict();
-
  for head in T[s]:
 	cost = G[head][s]	
 	h[head] = cost;

@@ -19,19 +19,12 @@ v = int(firstRow[0]);#number of vertexes
 e = int(firstRow[1]); #number of edges
 
 DG=nx.DiGraph()
-E =[] #edges
-V = {} #vertexes
 for row in reader:
 	#build adjacency list,keeping pointers like:
 	#tail ---->head
 	tail = int(row[0])
 	head = int(row[1])
 	w = int(row[2])
-	E.append((tail, head))
-	if V.get(tail)==None:
-		V[tail] = tail
-	if V.get(head)==None:
-		V[head] = head
 	DG.add_weighted_edges_from([(tail,head,w)])
 
 
