@@ -1,4 +1,6 @@
 # try to solve TSP for a smaller graph
+# using dynamic programing approach
+# not an obvious algorithm, look at lecture
 import csv as csv
 import itertools;
 
@@ -35,45 +37,40 @@ def getSetsOfSize(s,V,sourceVertex):
 			sets.append(list(c));
 	return sets
 
-
+# Recurrence to find smalest path that visits a fix number of vertexes
 def calculateSubsetDistance(M,G,set,destination,sourceVertex):
-	
+	print "set" +str(set)
 	bitmask = calculateBitmask(set);
-	candidates = [];
-	print "bitmask"+bitmask
 	print "destination"+str(destination)
-	if M.get(bitmask).get(destination)!=None:
-		return M[bitmask][destination]
 
-	# if there is only one element 
-	if len(set) == 2:
-		bitmask = calculateBitmask([sourceVertex]);
-		if G[sourceVertex][destination]!=None:
-			M[bitmask][destination] = G[sourceVertex][destination]
-		else: 
-			M[bitmask][destination] = INFINITE
+	# do not recalculate if we alreday did it
+	if M.get(bitmask).get(destination)==None:
+		candidates =[]
+		# if there is only two elements  
+		if len(set) == 2:
+			if G[sourceVertex][destination]!=None:
+				M[bitmask][destination] = G[sourceVertex][destination]
+			else: 
+				M[bitmask][destination] = INFINITE
 
-		distance = M[bitmask][j]
-		candidates.append(distance)
-	else:
-		# candidate set is bigger
-		# do brute force search from 1 to k k to j
-		set.remove(destination)
-		for k in set:
-			if k==sourceVertex:
-				continue
-			_set =[i for i in set]
-			if G[k][destination]!=None:
-				print "removing k= "+str(k)+"from set:"
-				print _set
-				_set.remove(k);
-				_bitmask = calculateBitmask(_set);
-				print "Set "+_bitmask
-				print M
-				distance = calculateSubsetDistance(M,G,_set,k,sourceVertex)+G[k][destination]
-				candidates.append(distance)
-	return min(candidates)
+			return M[bitmask][destination]
+		else:
+			# candidate set is bigger
+			# do brute force search from 1 to k k to j
+			set.remove(destination)
+			for k in set:
+				print "k="+str(k)
+				if k==sourceVertex or k==destination:
+					continue
+				_set =[i for i in set]
+				if G.get(k).get(destination)!=None:
+					distance = calculateSubsetDistance(M,G,_set,k,sourceVertex)+G[k][destination]
+					candidates.append(distance)
+		
+		M[bitmask][destination] = min(candidates)
+		print "minimum distance"+str(M[bitmask][destination]);
 
+	return  M[bitmask][destination]
 
 					
 f  = open('./testCase1.txt', "rb")
@@ -105,13 +102,13 @@ sourceVertex = 1
 
 
 #testing bitmasks
-b = calculateBitmask([1,2,3])
-print "bitmask 1,2,3 "+str(b)
-print undoBitmask(b)
+#b = calculateBitmask([1,2,3])
+#print "bitmask 1,2,3 "+str(b)
+#print undoBitmask(b)
 
-b = calculateBitmask([1,2,4])
-print "bitmask 1,2,4 "+str(b)
-print undoBitmask(b)
+#b = calculateBitmask([1,2,4])
+#print "bitmask 1,2,4 "+str(b)
+#print undoBitmask(b)
 
 
 M ={}#using a hash rather than an array
@@ -129,6 +126,7 @@ M[bitmask][sourceVertex] = 0;
 
 # now we need to add the edges that do connect with the source one
 for vertex in G[sourceVertex].keys():
+	bitmask = calculateBitmask([sourceVertex,vertex]);
 	M[bitmask][vertex] = G[sourceVertex][vertex]
 
 
@@ -142,32 +140,42 @@ for m in range(2,v+1):
 		for j in set:
 			if j==sourceVertex:
 				continue
-			print "j= "+str(j)
+			print ">>>>>j= "+str(j)
 			candidates = []
 			# calculate the path to 'j' from 1 given a budget
 			# of m edges that are specified in set
 			#print "j"+str(j)
-			bitmask = calculateBitmask(set);
-			# if there is only one element 
-			if len(set) == 2: 
-				if G[sourceVertex][j]!=None:
-					M[bitmask][j] = G[sourceVertex][j]
-				else: 
-					M[bitmask][j] = INFINITE
-			else:
-				# candidate set is bigger
-				# do brute force search from 1 to k k to j
-				for k in set:
-					if k==1 or k==j:
-						continue
-					_set =[i for i in set]
-					print "k="+str(k)
-					if G[k][j]!=None:
-						candidate = calculateSubsetDistance(M,G,_set,j,sourceVertex)
-						candidates.append(candidate);
+			# candidate set is bigger
+			# do brute force search from 1 to k k to j
+			for k in set:
+				if k==1:
+					continue
+				_set =[i for i in set]
+				candidate = calculateSubsetDistance(M,G,_set,j,sourceVertex)
+				candidates.append(candidate);
 
-				M[bitmask][j] = min(candidates)  
+			M[bitmask][j] = min(candidates)  
 
-	#print sets
 
 print M
+
+# now we need to calculate the last hop, coming back to 1 from j
+# what is the set that minimizes this value?
+# using all sets of size v
+sets = getSetsOfSize(v,V,sourceVertex);
+
+lastHopCandidates = []
+for set in sets:
+ bitmask = calculateBitmask(set);
+ print "looking up bitmask"+bitmask
+ for j in range(2,v+1):
+	if G[j][sourceVertex]!= None:
+		candidate = M[bitmask][j]+G[j][sourceVertex];
+		lastHopCandidates.append(candidate)
+
+
+print "candidates"
+print lastHopCandidates
+
+print min(lastHopCandidates);
+ 
