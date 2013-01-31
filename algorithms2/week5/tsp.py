@@ -13,7 +13,7 @@ def calculateDistance(x0,y0,x1,y1):
 	d = (x0-x1)*(x0-x1)+(y0-y1)*(y0-y1)
 	d = math.sqrt(d)
 	#rouding distances to nearest integer
-	return int(d)
+	return d
 
 #input [1,4,0]
 #output 10011
@@ -59,13 +59,13 @@ def getSetsOfSize(s,V,sourceVertex,S):
 
 # Recurrence to find smallest path that visits a fix number of vertexes
 def calculateSubsetDistance(M,G,set,destination,sourceVertex):
-	print "set" +str(set)
+	#print "set" +str(set)
 	bitmask = calculateBitmask(set,S);
-	print "destination"+str(destination)
+	#print "destination"+str(destination)
 
 	# do not recalculate if we alreday did it
 	if M.get(bitmask).get(destination)==None:
-		print "calculating ..."
+		#print "calculating ..."
 		candidates =[]
 		# if there is only two elements  
 		if len(set) == 2:
@@ -75,7 +75,7 @@ def calculateSubsetDistance(M,G,set,destination,sourceVertex):
 			# do brute force search from 1 to k k to j
 			set.remove(destination)
 			for k in set:
-				print "k="+str(k)
+				#print "k="+str(k)
 				if k==sourceVertex or k==destination:
 					continue
 				_bitmask = calculateBitmask(set,S);
@@ -87,7 +87,7 @@ def calculateSubsetDistance(M,G,set,destination,sourceVertex):
 			M[bitmask][destination] = min(candidates)
 	
 	#print M	
-	print "minimum distance"+str(M[bitmask][destination]);
+	#print "minimum distance"+str(M[bitmask][destination]);
 	return  M[bitmask][destination]
 
 f = open ('./citiesSmall.txt');
@@ -181,7 +181,7 @@ for m in range(2,v+1):
 		for j in set:
 			if j==sourceVertex:
 				continue
-			print ">>>>>j= "+str(j)
+			#print ">>>>>j= "+str(j)
 			candidates = []
 			# calculate the path to 'j' from 1 given a budget
 			# of m edges that are specified in set
@@ -222,7 +222,7 @@ for set in sets:
 print "candidates"
 print lastHopCandidates
 
-print min(lastHopCandidates);
+print int(min(lastHopCandidates));
  
 
 
