@@ -15,9 +15,21 @@ def calculateDistance(x0,y0,x1,y1):
 	#rouding distances to nearest integer
 	return d
 
+
+def calculateBitmask(s,B,destination):
+	_set = "".join(str(e) for e in s);
+	#print "_set"+_set
+	if B.get(_set)!=None:
+		return B[_set]
+	bitmask = _set+str(destination)
+	#print bitmask
+	return int(bitmask)
+
+
+
 #input [1,4,0]
 #output 10011
-def calculateBitmask(set,B):
+def calculateBitmaskBimary(set,B):
 	_set = str(set);
 	if B.get(_set)!=None:
 		return B[_set]
@@ -57,38 +69,6 @@ def getSetsOfSize(s,V,sourceVertex,S):
 	S[s] = sets
 	return sets
 
-# Recurrence to find smallest path that visits a fix number of vertexes
-def calculateSubsetDistance(M,G,set,destination,sourceVertex):
-	#print "set" +str(set)
-	bitmask = calculateBitmask(set,S);
-	#print "destination"+str(destination)
-
-	# do not recalculate if we alreday did it
-	if M.get(bitmask).get(destination)==None:
-		#print "calculating ..."
-		candidates =[]
-		# if there is only two elements  
-		if len(set) == 2:
-			M[bitmask][destination] = G[sourceVertex][destination]
-		else:
-			# candidate set is bigger
-			# do brute force search from 1 to k k to j
-			set.remove(destination)
-			for k in set:
-				#print "k="+str(k)
-				if k==sourceVertex or k==destination:
-					continue
-				_bitmask = calculateBitmask(set,S);
-				_set =[i for i in set]
-				distance = calculateSubsetDistance(M,G,_set,k,sourceVertex)+G[k][destination]
-				candidates.append(distance)
-		
-			_min = min(candidates)
-			M[bitmask][destination] = min(candidates)
-	
-	#print M	
-	#print "minimum distance"+str(M[bitmask][destination]);
-	return  M[bitmask][destination]
 
 f = open ('./citiesSmall.txt');
 reader = csv.reader(f , delimiter=' ',quoting=csv.QUOTE_NONE);
@@ -101,7 +81,7 @@ G = {} # graph with each vertex and distance to every other vertex
 P = [] # stores x, y for each city
 # we shall precalculate distances from anyone to anyone so each vertex will have
 # 24 edges...
-i = 0;
+i = 1;
 
 S = {} # set cache, see if it improves performance
 B = {} # bitmask cache
@@ -113,17 +93,18 @@ for row in reader:
 	i = i + 1;
 
 
+V = G.keys()
+
 for j in range(len(P)):
 	x0 = P[j][0];
 	y0 = P[j][1];
-	for k in range(len(P)):
-		if k == j:
+	for v in V:
+		if v == j+1: #no need to calculate distance to itself
 			continue
-		
-		x1 = P[k][0];
-		y1 = P[k][1];
+		x1 = P[v-1][0]; 
+		y1 = P[v-1][1];
 		d = calculateDistance(x0,y0,x1,y1);
-		G[j][k] =d
+		G[v][j+1] =d
 
 #print G
 
@@ -131,8 +112,7 @@ for j in range(len(P)):
 # remember we are numbering nodes from 0
 
 
-V = G.keys()
-sourceVertex = 0
+sourceVertex = 1
 
 
 #testing bitmasks
@@ -150,34 +130,42 @@ sourceVertex = 0
 
 
 
-M ={}#using a hash rather than an array
-# base cases
-for m in range(1,v+1):
-	sets = getSetsOfSize(m,V,sourceVertex,S)
-	for set in sets:
-		bitmask = calculateBitmask(set,S);
-		M[bitmask] = {}
-		#M[bitmask][sourceVertex]= INFINITY
+# memory improvement: use 1 dimensional structure
 
 # for sourceVertex distance is 0
-bitmask = calculateBitmask([sourceVertex],S)
-M[bitmask][sourceVertex] = 0;
+
+M1 = {};
+M2 = {};
+#M1[bitmask] = 0
 
 # now we need to add the edges that do connect with the source one
 for vertex in G[sourceVertex].keys():
-	bitmask = calculateBitmask([sourceVertex,vertex],S);
-	M[bitmask][vertex] = G[sourceVertex][vertex]
+	bitmask = calculateBitmask([sourceVertex,vertex],S,vertex);
+	#print "inserting bitmask "+str(bitmask)
+	M1[bitmask]=G[sourceVertex][vertex]
 
 
-#print M
+#print M1
 #print G
 
 print "starting dynamic programing algorithm------"
 
-for m in range(2,v+1):
+# working with two arrays for memonization scheme
+for m in range(3,v+1):
 	sets = getSetsOfSize(m,V,sourceVertex,S)
+	# for memonization scheme
+	if m % 2 != 0: 
+		M2 = {} #current
+		C = M2
+		P = M1 #prior
+	else:
+		M1 = {}#current
+		C = M1
+		P = M2 #prior
+	#print P
+	#print C
 	for set in sets:
-		bitmask = calculateBitmask(set,S)
+		#print ">>>>>set"+str(set)
 		for j in set:
 			if j==sourceVertex:
 				continue
@@ -188,15 +176,24 @@ for m in range(2,v+1):
 			#print "j"+str(j)
 			# candidate set is bigger
 			# do brute force search from 1 to k k to j
-			
+			bitmask = calculateBitmask(set,B,j)
 			for k in set:
-				if k==sourceVertex:
+				if k==sourceVertex or k == j:
 					continue
 				_set =[i for i in set]
-				candidate = calculateSubsetDistance(M,G,_set,j,sourceVertex)
+				#print _set
+				_set.remove(j)
+				_bitmask = calculateBitmask(_set,B,k)
+				#print "k"+str(k)
+				#print "j"+str(j)
+				#print "bitmask"+str(_bitmask)
+				#print P[_bitmask]
+				candidate = P[_bitmask] + G[k][j]
 				candidates.append(candidate);
-			#print M	
-			M[bitmask][j] = min(candidates)  
+
+			C[bitmask] = min(candidates);
+			#print ">>>> Current"
+			#print C	
 
 
 #print M
@@ -208,21 +205,18 @@ sets = getSetsOfSize(v,V,sourceVertex,S);
 
 lastHopCandidates = []
 for set in sets:
- bitmask = calculateBitmask(set,S);
- print "looking up bitmask"+bitmask
- #rememeber we are numbering vertexes starting at 0
- for j in range(1,v):
-	if G[j][sourceVertex]!= None:
-		candidate = M[bitmask][j]+G[j][sourceVertex];
-		print "for vertex"+str(j)
-		print "candidate is"+str(candidate)
-		lastHopCandidates.append(candidate)
+ for j in range(sourceVertex+1,v+1):
+	bitmask = calculateBitmask(set,S,j);
+	candidate = C[bitmask]+G[j][sourceVertex];
+	print "for vertex"+str(j)
+	print "candidate is"+str(candidate)
+	lastHopCandidates.append(candidate)
 
 
 print "candidates"
 print lastHopCandidates
 
-print int(min(lastHopCandidates));
+print min(lastHopCandidates);
  
 
 
