@@ -3,10 +3,11 @@
 #  plane, and each subsequent line indicates the x- and y-coordinates of a
 #  single city.
 # The distance between two cities is defined as the Euclidean distance 
+#import numpypy
 import csv as csv
 import math as math
 import itertools;
-
+#import numpy
 
 # calculates the euclidean distance
 def calculateDistance(x0,y0,x1,y1):
@@ -16,59 +17,68 @@ def calculateDistance(x0,y0,x1,y1):
 	return d
 
 
-def calculateBitmask(s,B,destination):
+def calculateBitmask(s,B={},destination=None):
 	_set = "".join(str(e) for e in s);
 	#print "_set"+_set
 	if B.get(_set)!=None:
 		return B[_set]
-	bitmask = _set+str(destination)
+	bitmask = _set;
+	if destination!=None:
+		bitmask = bitmask+str(destination)
 	#print bitmask
 	return int(bitmask)
 
 
 
-#input [1,4,0]
-#output 10011
-def calculateBitmaskBimary(set,B):
-	_set = str(set);
-	if B.get(_set)!=None:
-		return B[_set]
-
- 	bitmask = [];
-	biggest = max(set)
- 	for k in range(0,biggest+1):
-		if k in set: 
-			bitmask.append('1')
-		else:
-			bitmask.append('0');
-
-	B[_set] = "".join(reversed(bitmask))	
-	return B[_set];
-		
-def undoBitmask(bitmask):
-	_bitmask = [int(i) for i in bitmask]
-	set =[];
-	l = len(_bitmask);
-
-	for k in range(l):
-		if _bitmask[l-1-k] == 1: 
-			set.append(k)
-	return set;	
 
 # returns the different possible sets of size s
 # out of set v
 # every set contains vertex 1
-def getSetsOfSize(s,V,sourceVertex,S):
+def getSetsOfSize(s,nodeList,sourceVertex,S):
 	if S.get(s)!=None:
 		return S[s]
 	sets = [];
-	combinations = itertools.combinations(V,s)
+	combinations = itertools.combinations(nodeList,s)
+	
 	for c in combinations:
 		if sourceVertex in c:
+			#print c
 			sets.append(list(c));
 	S[s] = sets
 	return sets
 
+# given a hashmap like T[S][destination] = <k>
+# that has stored all minimuns accross the way
+# it can print the tour
+# this goes backwards
+def findTour(lastNode,numberOfVertexes,tour,sourceVertex,nonVisitedNodes,S):
+	# do nothing for now
+	if numberOfVertexes==2:
+		print "tour complete"
+		return;
+	#we are still in the middle
+	bitmask  = "".join(str(e) for e in nonVisitedNodes);
+	bitmask = int(bitmask)
+	#print "bitmask"
+	#print bitmask
+	# get minimum path with this new bitmask
+	# candidates is a hashmap keyed by node
+	priorToLast = tour[bitmask][lastNode]	
+	_nonVisitedNodes = [i for i in nonVisitedNodes]
+	#print "removing"+str(lastNode)
+	_nonVisitedNodes.remove(lastNode)
+	#print _nonVisitedNodes
+	print ">>Node"
+	print priorToLast
+
+	findTour(priorToLast,numberOfVertexes-1,tour,sourceVertex,_nonVisitedNodes,S)
+			
+
+
+
+
+
+################################ main program ###################
 
 f = open ('./citiesSmall.txt');
 reader = csv.reader(f , delimiter=' ',quoting=csv.QUOTE_NONE);
@@ -115,20 +125,6 @@ for j in range(len(P)):
 sourceVertex = 1
 
 
-#testing bitmasks
-#b = calculateBitmask([1,2,3])
-#print "bitmask 1,2,3 "+str(b)
-#print undoBitmask(b)
-
-#b = calculateBitmask([1,4])
-#print "bitmask 1,4 "+str(b)
-#print undoBitmask(b)
-
-#b = calculateBitmask([1,3])
-#print "bitmask 1,3 "+str(b)
-#print undoBitmask(b)
-
-
 
 # memory improvement: use 1 dimensional structure
 
@@ -143,13 +139,14 @@ for vertex in G[sourceVertex].keys():
 	bitmask = calculateBitmask([sourceVertex,vertex],S,vertex);
 	#print "inserting bitmask "+str(bitmask)
 	M1[bitmask]=G[sourceVertex][vertex]
-
+	
 
 #print M1
 #print G
 
 print "starting dynamic programing algorithm------"
 
+tour = {}
 # working with two arrays for memonization scheme
 for m in range(3,v+1):
 	sets = getSetsOfSize(m,V,sourceVertex,S)
@@ -166,11 +163,19 @@ for m in range(3,v+1):
 	#print C
 	for set in sets:
 		#print ">>>>>set"+str(set)
+		# Now the tour 
+		sbitmask = str(calculateBitmask(set))
+		# we will need to recurse on this structure, for easier lookup use a
+		# two dimensinal array here,remove destination from bitmask
+		keyForTour = int(sbitmask)
+		tour[keyForTour] = {}
+			
 		for j in set:
 			if j==sourceVertex:
 				continue
 			#print ">>>>>j= "+str(j)
 			candidates = []
+			landing ={} #hash map keyed by distance to be able to finding the next step on the tour
 			# calculate the path to 'j' from 1 given a budget
 			# of m edges that are specified in set
 			#print "j"+str(j)
@@ -190,8 +195,11 @@ for m in range(3,v+1):
 				#print P[_bitmask]
 				candidate = P[_bitmask] + G[k][j]
 				candidates.append(candidate);
+				landing[candidate] = k; 
 
 			C[bitmask] = min(candidates);
+			# Now the tour, store the node via which we land in j 
+			tour[keyForTour][j] = landing[min(candidates)];
 			#print ">>>> Current"
 			#print C	
 
@@ -203,7 +211,12 @@ for m in range(3,v+1):
 # using all sets of size v
 sets = getSetsOfSize(v,V,sourceVertex,S);
 
+#print tour
+
 lastHopCandidates = []
+# hashmap keyed by distance to find last ho
+# and be able to reconstruct the path
+landing = {}
 for set in sets:
  for j in range(sourceVertex+1,v+1):
 	bitmask = calculateBitmask(set,S,j);
@@ -211,15 +224,23 @@ for set in sets:
 	print "for vertex"+str(j)
 	print "candidate is"+str(candidate)
 	lastHopCandidates.append(candidate)
+	landing[candidate] = j
 
+#print "candidates"
+#print lastHopCandidates
 
-print "candidates"
-print lastHopCandidates
-
+print "tour value"
 print min(lastHopCandidates);
  
+print "last node:"
+lastNode = landing[min(lastHopCandidates)]
+print lastNode
 
 
+#print tour
 
+# now find tour
+# rememeber v number of vertexes
+findTour(lastNode, v, tour,sourceVertex,G,S)
 
 

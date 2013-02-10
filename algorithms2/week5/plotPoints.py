@@ -6,7 +6,7 @@ import csv
 def draw_path(points, path=()):
   n = len(points)
   data = pylab.array(points)    
-  labels = ['{0}'.format(i) for i in range(n)]
+  labels = ['{0}'.format(i+1) for i in range(n)]
 
   if path:
     data2 = data[pylab.array(path)]
