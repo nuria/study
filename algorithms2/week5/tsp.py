@@ -116,7 +116,7 @@ for j in range(len(P)):
 		d = calculateDistance(x0,y0,x1,y1);
 		G[v][j+1] =d
 
-#print G
+
 
 # now we need to calculate the TSP values 
 # remember we are numbering nodes from 0
