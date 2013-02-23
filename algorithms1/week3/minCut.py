@@ -21,8 +21,16 @@ import copy as copy
 
 
 
-def minCut(u,v,G):
-	Q = copy.deepcopy(G); 
+def minCut(G,E):
+
+	Q = copy.deepcopy(G);
+	
+	s = random.sample(E,1);
+	u = s[0][0]
+	v = s[0][1]
+	# rebinding list
+	_E = [(i, j) for i, j in E if i!=u and j!=v]
+	
 	keys = Q.keys();
 	# kind of like union find
 	# list of each vertex and its cluster leader
@@ -32,7 +40,7 @@ def minCut(u,v,G):
 		#print "keys"+str(keys)
 		# merge u and v
 		# merge always to u
-		print "merging "+str(u)+" "+str(v)
+		#print "merging "+str(u)+" "+str(v)
 		uEdges = Q[u]
 		vEdges = Q[v]
 		edges = vEdges + uEdges
@@ -52,14 +60,14 @@ def minCut(u,v,G):
 		_edges = copy.deepcopy(edges);
 		for e in edges:
 			if C.get(e)!=None and C[e] == u:
-				print "removing edge"+str(e)
+				#print "removing edge"+str(e)
 				_edges.remove(e)
 		edges = _edges
 		Q[u] = edges
 		
-		print Q	
-		print "union find"
-		print C
+		#print Q	
+		#print "union find"
+		#print C
 
 		#now select new u, v 
 		# if we have more than 2 vertexes in our keys
@@ -70,34 +78,35 @@ def minCut(u,v,G):
 			break
 		_vertex = v
 		while _vertex==v:
-			u = random.sample(keys,1);
-			u = u[0]
-			print "u candidate "+ str(u)
-			for k in Q[u]:
-				# pick the first one that hasn't been contracted at all
-				# or that is not on the same cluster u is at
-				if C.get(k)==None: 
-					_vertex = k
-					break
-				else :
-				 # v has been contracted already, pick the leader of its cluster
-				 _vertex = C[k]
-				 break
-
-			print "v candidate "+str(_vertex)
-		v = _vertex
+			s = random.sample(_E,1);
+			#print "u"+str(u)
+			_u = s[0][0]
+			_v = s[0][1]
+			# when picking cases
+			# never contracted before, if contracted get their leaders from C 
+			if C.get(_v)==None:
+				v = _v
+			if C.get(_u)==None:
+				u = _u
+			if C.get(_v) !=None:
+				v = C[_v]
+			if C.get(_u) !=None:
+				u = C[_u]
+			# rebinding list
+			_E = [(i, j) for i, j in E if i!=u and j!=v]
 
 	minCutNumberOfVertexes = len(Q[keys[0]]) 
-	print ">>>local min"+str(minCutNumberOfVertexes);
+	#print ">>>local min"+str(minCutNumberOfVertexes);
 	return minCutNumberOfVertexes 
 
 #f = open('./kargerMinCut.txt');
 #reader = csv.reader(f,delimiter='\t', quoting=csv.QUOTE_NONE)
-f = open('./testCase2.txt');
+f = open('./testCase3.txt');
 reader = csv.reader(f,delimiter=' ', quoting=csv.QUOTE_NONE)
 
 G = {}
 V = 0
+E =[]; #tuples of edges to pick an edge at random
 for row in reader:
 	V = V+1
 	v = int(row[0])
@@ -108,9 +117,11 @@ for row in reader:
 		if w.isdigit():
 			w = int(w)
 			tails.append(w)
+			t = (v,w);
+			E.append(t);
 	G[v] = tails
 
-#print G
+print E
 
 # now we need to start contracting graph
 keys = G.keys();
@@ -119,23 +130,16 @@ keys = G.keys();
 
 minCutNumberOfVertexes = 1000;
 
-counter = V*V*V;
+counter = V*V;
 
 print "Minimum found in "+str(counter)+" attempts "
-
-u = random.sample(keys,1);
-u = u[0]
-v = random.sample(G[u],1);
-v = v[0]
-
-
 
 while counter>0: 
 	# pick a random starting vertex
 	seed = random.sample(keys,1);
 	seed = seed[0]
 	#print "seed is "+str(seed);
-	minCutNumber = minCut(u,v,G)
+	minCutNumber = minCut(G,E)
 	#print "The number of vertexes..."
 	#print minCutNumber
 	minCutNumberOfVertexes = min(minCutNumberOfVertexes,minCutNumber)
