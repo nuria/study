@@ -40,7 +40,7 @@ def minCut(G,E):
 		#print "keys"+str(keys)
 		# merge u and v
 		# merge always to u
-		#print "merging "+str(u)+" "+str(v)
+		print "merging "+str(u)+" "+str(v)
 		uEdges = Q[u]
 		vEdges = Q[v]
 		edges = vEdges + uEdges
@@ -84,25 +84,31 @@ def minCut(G,E):
 			_v = s[0][1]
 			# when picking cases
 			# never contracted before, if contracted get their leaders from C 
+			print "_u and _v"+str(_u)+" "+str(_v)
 			if C.get(_v)==None:
 				v = _v
 			if C.get(_u)==None:
 				u = _u
-			if C.get(_v) !=None:
-				v = C[_v]
-			if C.get(_u) !=None:
-				u = C[_u]
+			if C.get(_v) != C.get(_u):
+				if C.get(_u)!=None:
+					u =C[_u]
+				if C.get(_v)!=None:
+					v = C[_v]
+
+			# the case C.get(_v) == C.get(_u) 
+			# is the one in which both vertexes have already been merged
+			# remove them from edge list try again
 			# rebinding list
-			_E = [(i, j) for i, j in E if i!=u and j!=v]
+			_E = [(i, j) for i, j in E if i!=_u and j!=_v]
 
 	minCutNumberOfVertexes = len(Q[keys[0]]) 
-	#print ">>>local min"+str(minCutNumberOfVertexes);
+	print ">>>local min"+str(minCutNumberOfVertexes);
 	return minCutNumberOfVertexes 
 
-#f = open('./kargerMinCut.txt');
-#reader = csv.reader(f,delimiter='\t', quoting=csv.QUOTE_NONE)
-f = open('./testCase3.txt');
-reader = csv.reader(f,delimiter=' ', quoting=csv.QUOTE_NONE)
+f = open('./kargerMinCut.txt');
+reader = csv.reader(f,delimiter='\t', quoting=csv.QUOTE_NONE)
+#f = open('./testCase3.txt');
+#reader = csv.reader(f,delimiter=' ', quoting=csv.QUOTE_NONE)
 
 G = {}
 V = 0
@@ -121,7 +127,7 @@ for row in reader:
 			E.append(t);
 	G[v] = tails
 
-print E
+#print E
 
 # now we need to start contracting graph
 keys = G.keys();
@@ -130,7 +136,7 @@ keys = G.keys();
 
 minCutNumberOfVertexes = 1000;
 
-counter = V*V;
+counter = 10;
 
 print "Minimum found in "+str(counter)+" attempts "
 
