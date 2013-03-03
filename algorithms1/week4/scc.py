@@ -48,8 +48,8 @@ def DFS(Q,node,calculateTimes,leader=None):
 
 ################################ main program ######################
 
-f = open('testCase3.txt');
-#f = open('./scc.txt');
+#f = open('testCase3.txt');
+f = open('./scc.txt');
 reader = csv.reader(f,delimiter=' ', quoting=csv.QUOTE_NONE)
 
 
@@ -132,7 +132,8 @@ for t in range(maxTime,1,-1):
 
 size = L.values()
 size.sort(reverse=True);
-print size
+for i  in range(0,5)
+	print size[i]
 	
 
 
