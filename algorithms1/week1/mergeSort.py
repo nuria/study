@@ -1,15 +1,14 @@
+
 # compute the number of inversions in the given file
 # where the ith row of the file indicates the ith entry of an array
-#  merge sort counting how many times do we move elements arround?
-
+#  merge sort keeping a runimng total for inversions
 
 
 def  mergeSort(m):
 	l = len(m)
-
 	if l == 1:
 		R = m
-		return R
+		return R,0
 
 	elif l % 2 == 0:
 		middle =l/2
@@ -25,13 +24,24 @@ def  mergeSort(m):
 	#print right
 	#print left
 
-	R = merge(mergeSort(left),mergeSort(right))
+	leftA,inversionsL  = mergeSort(left);
 
-	return R
+	rightA,inversionsR = mergeSort(right)
+
+	
+	#print "inversions left"+str(inversionsL)
+	#print "inversions right"+str(inversionsR)
+
+	R,inversions = merge(leftA,rightA)
+
+	#print "inversions total"+str(inversions)
+	inversions = inversionsL + inversionsR + inversions
+	return R,inversions
 
 # r = right array
 # l= left array
 def merge(left,right):
+	inversions =0
 	#print "merge"
 	j =0
 	i =0
@@ -50,6 +60,12 @@ def merge(left,right):
 		if right[i] < left[j]:
 			R.append(right[i]);
 			i = i+1
+			# this denotes an inversion
+			# # of inversions are all elements left in left array
+			inversions = inversions +len(left)-j
+			#print "inversions"+str(inversions)
+			#print "left pointer"+str(j)
+			
 		elif right[i] > left[j]:
 			R.append(left[j]);
 			j = j+1
@@ -60,7 +76,7 @@ def merge(left,right):
 			i=i+1;
 			j=j+1;
 
-	return R
+	return R,inversions
 
 		
 
@@ -72,11 +88,12 @@ for line in f:
 	data.append(line)
 
 
-#we have all data there, how do we calculate inversions?
+# we have all data there, how do we calculate inversions?
 # merge sort with a counter?
 
-R = mergeSort(data)
+R,inversions = mergeSort(data)
 
 print R
+print "inversions" +str(inversions)
 
 
