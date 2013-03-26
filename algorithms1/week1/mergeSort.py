@@ -1,7 +1,11 @@
 
 # compute the number of inversions in the given file
 # where the ith row of the file indicates the ith entry of an array
-#  merge sort keeping a runimng total for inversions
+# For example 1234567 has no inversions
+# whereus 7654321 has 21 inversions
+# 135246 has 3 iversions (5,2), (3,2), (5,4)
+
+#  implementation is merge sort keeping a runimng total for inversions
 
 
 def  mergeSort(m):
