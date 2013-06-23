@@ -1,4 +1,4 @@
-#quicksort
+# quicksort
 # this implementation chooses as pivot the 1st element
 
 # partition arround a pivot
@@ -40,8 +40,7 @@ def quicksort(a):
 	if len(right) > 1:
 		right  = quicksort(right);
 
-	result = left+right
-	return result
+	return left+right
 
 
 file = open ('./testCase1.txt');
