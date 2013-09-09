@@ -25,6 +25,7 @@ public class PercolationTest {
             super(n);
             this.gridSize = n;
             this.lastNode = n * n;
+
         }
 
         /**
@@ -34,11 +35,13 @@ public class PercolationTest {
          * if node has no top
          * i.e. is part of top row
          *
-         * @param k
-         * @return
+         * @param k index
+         * @return int
          */
         private int top(int k) {
-            if (1 >= k && k <= this.gridSize) {
+
+
+            if (1 <= k && k <= this.gridSize) {
                 //node is in top row
                 return -1;
             } else {
@@ -46,6 +49,29 @@ public class PercolationTest {
             }
 
         }
+        /**
+         * given a node it returns the node to the left of it
+         * in the cross of nodes we have to open
+         * might return "-1"
+         * if node has no left
+         * i.e. is part of left border
+         *
+         * @param k index
+         * @return int
+         */
+        protected int left(int k) {
+
+
+            if ((k - 1) % this.gridSize == 0) {
+                //node is in left border
+                return -1;
+            } else {
+                return k - 1;
+            }
+
+        }
+
+
 
         /**
          * given a node it returns the node under it
@@ -58,7 +84,7 @@ public class PercolationTest {
          * @return
          */
         private int bottom(int k) {
-            if (this.lastNode - this.gridSize <= k && k <= this.lastNode) {
+            if (this.lastNode - this.gridSize < k && k <= this.lastNode) {
                 //node is in bottom row
                 return -1;
             } else {
@@ -67,25 +93,6 @@ public class PercolationTest {
 
         }
 
-        /**
-         * given a node it returns the node to the left of it
-         * in the cross of nodes we have to open
-         * might return "-1"
-         * if node has no left
-         * i.e. is part of left border
-         *
-         * @param k
-         * @return
-         */
-        private int left(int k) {
-            if (k - 1 % this.gridSize == 0) {
-                //node is in left border
-                return -1;
-            } else {
-                return k - 1;
-            }
-
-        }
 
         /**
          * given a node it returns the node to the right of it
@@ -124,6 +131,23 @@ public class PercolationTest {
             return count;
         }
 
+        private String printGrid() {
+            StringBuffer msg = new StringBuffer();
+
+            for (int i = 1; i <= this.gridSize; i++) {
+                for (int j = 1; j <= this.gridSize; j++) {
+                    if (this.isOpen(i, j)) {
+                        msg.append(" o ");
+                    } else {
+                        msg.append(" - ");
+                    }
+                }
+                msg.append("\n");
+            }
+            return msg.toString();
+        }
+
+
     }
 
     @BeforeClass
@@ -145,6 +169,12 @@ public class PercolationTest {
         Assert.assertTrue(" (1,1) position should be open by now", p1.isOpen(1, 1));
         Assert.assertTrue(p1.isFull(1, 1));
 
+    }
+
+    @Test(expectedExceptions = IndexOutOfBoundsException.class)
+    public void testIndexZero() {
+        Percolation p = new Percolation(1);
+        p.isOpen(0, 1);
     }
 
     /**
@@ -239,15 +269,22 @@ public class PercolationTest {
 
     @Test
     public void testTop() throws Exception {
-
+        /**
+         * 1->1  2->2
+         * 3->3  4->4
+         */
         //11 is node 1
-        int top = p.top(1);
+
         //should be null
-        Assert.assertTrue(top == -1);
+        Assert.assertTrue(p.top(1) == -1);
         //12 is node '3', thus top should be 1
-        top = p.top(3);
-        Assert.assertTrue(top == 1);
+        Assert.assertTrue(p.top(3) == 1);
+        Assert.assertTrue(p.top(2)==-1);
+
+
     }
+
+
 
     @Test
     public void testBottom() throws Exception {
@@ -265,6 +302,15 @@ public class PercolationTest {
 
         //11 is node 1
         int left = p.left(1);
+        //should be null
+        Assert.assertTrue(left == -1);
+    }
+
+    @Test
+    public void testLeftBiggerGrid() throws Exception {
+        PercolationExtension p = new PercolationExtension(6);
+        //11 is node 1
+        int left = p.left(7);
         //should be null
         Assert.assertTrue(left == -1);
     }
@@ -320,7 +366,7 @@ public class PercolationTest {
 
     @Test
     public void testIsFullBiggerGrid() {
-        Percolation p = new Percolation(6);
+        PercolationExtension p = new PercolationExtension(6);
         Assert.assertFalse(" (1,1) should not be full", p.isFull(1, 1));
         p.open(1, 6);
         p.open(2, 6);
@@ -333,7 +379,12 @@ public class PercolationTest {
         p.open(2, 4);
         p.open(2, 3);
         p.open(2, 2);
+        System.out.println(p.printGrid());
+
         p.open(2, 1);
+
+        Assert.assertFalse("(2,1) should not be full", p.isFull(2, 1));
+
         p.open(3, 1);
         p.open(4, 1);
         p.open(5, 1);
@@ -342,4 +393,25 @@ public class PercolationTest {
         p.open(5, 4);
         Assert.assertTrue(p.percolates());
     }
+
+
+    @Test
+    public void testInput2() {
+        PercolationExtension p = new PercolationExtension(2);
+        Assert.assertFalse(" (1,1) should not be full", p.isFull(1, 1));
+        p.open(1, 1);
+
+        p.open(2,2);
+
+        System.out.println(p.printGrid());
+        p.open(1,2);
+
+        System.out.println(p.printGrid());
+
+        Assert.assertTrue(p.percolates());
+        Assert.assertTrue(p.isFull(2,2));
+        Assert.assertFalse(p.isFull(2,1));
+
+    }
+
 }

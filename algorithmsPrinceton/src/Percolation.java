@@ -5,6 +5,8 @@
  */
 public class Percolation {
 
+    private static int OPENED = 1;
+
     private int gridSize = 0;
     /**
      * translates from i, j to node # in our model,
@@ -18,8 +20,6 @@ public class Percolation {
     private int firstVirtNode;
     private int lastVirtNode;
     private int ufSize;
-
-    private static int OPENED = 1;
 
 
     private WeightedQuickUnionUF uf;
@@ -38,10 +38,9 @@ public class Percolation {
         this.lastVirtNode = this.lastNode + 1;
 
         // to keep  track of n size grid we need n*n nodes
-        // plus the 2 virtual ones
-        // since we start at zero
+        //we start at 1
 
-        this.ufSize = n * n + 2;
+        this.ufSize = n * n + 1;
 
 
         // note that the 0 row is unoccuppied, only has virt node
@@ -111,7 +110,8 @@ public class Percolation {
     }
 
     /**
-     * to open a site we connected to all its adjacent open sites
+     * To open a site we connected to all its adjacent OPEN sites
+     * BE CAREFUL!
      *
      * @param i row
      * @param j column
@@ -120,25 +120,22 @@ public class Percolation {
      */
     public void open(int i, int j) {
 
+
         if (this.isOpen(i, j)) {
             return;
         }
 
         int node = this.getNode(i, j);
 
-
-        // if we are opening node "k"
-        // we need to open the following
-        //    |k-n|
-        // k-1| k | k+1
-        //    |k+n|
-
         int top = top(node);
         int bottom = bottom(node);
         int left = left(node);
         int right = right(node);
 
+
         int[] arround = new int[]{top, bottom, left, right};
+
+
 
         for (int anArround : arround) {
             if (anArround > 0) {
@@ -178,11 +175,11 @@ public class Percolation {
      *
      * @param i row
      * @param j column
-     * @return  boolean
+     * @return boolean
      * @throws java.lang.IndexOutOfBoundsException
      *
      */
-    public boolean isFull(int i, int j)  {
+    public boolean isFull(int i, int j) {
         //I *think*  a site must be open to be full
         if (!this.isOpen(i, j)) {
             return false;
@@ -191,8 +188,9 @@ public class Percolation {
 
 
         //TODO quadratic solution, improve
-        for (int k = 1; k <= this.gridSize; k++) {
+        for (int k = 1; k <= this.gridSize; k++) { //all items on the top row
             if (uf.connected(k, node)) {
+
                 return true;
             }
         }
@@ -243,7 +241,7 @@ public class Percolation {
      *
      */
     private void checkIndex(int k) {
-        if (k > this.gridSize) {
+        if (k == 0 || k > this.gridSize) {
             throw new IndexOutOfBoundsException("row index " + k + " out of bounds");
         }
 
@@ -260,7 +258,9 @@ public class Percolation {
      * @return int
      */
     private int top(int k) {
-        if (1 >= k && k <= this.gridSize) {
+
+
+        if (1 <= k && k <= this.gridSize) {
             //node is in top row
             return -1;
         } else {
@@ -280,7 +280,7 @@ public class Percolation {
      * @return int
      */
     private int bottom(int k) {
-        if (this.lastNode - this.gridSize <= k && k <= this.lastNode) {
+        if (this.lastNode - this.gridSize < k && k <= this.lastNode) {
             //node is in bottom row
             return -1;
         } else {
@@ -300,7 +300,9 @@ public class Percolation {
      * @return int
      */
     private int left(int k) {
-        if (k - 1 % this.gridSize == 0) {
+
+
+        if ((k - 1) % this.gridSize == 0) {
             //node is in left border
             return -1;
         } else {
@@ -316,7 +318,7 @@ public class Percolation {
      * if node has no right
      * i.e. is part of right border
      *
-     * @param k  index
+     * @param k index
      * @return int
      */
     private int right(int k) {
@@ -329,9 +331,26 @@ public class Percolation {
 
     }
 
+    /**
+     * @return String
+     */
+    private String printUF() {
 
+        StringBuffer msg = new StringBuffer();
 
+        for (int k = 0; k < this.ufSize; k++) {
+            if (k > 10) {
+                msg.append(k);
+            } else {
+                msg.append(" " + k);
+            }
+            msg.append("->" + this.uf.find(k) + " ");
 
-
+            if (k % this.gridSize == 0) {
+                msg.append("\n");
+            }
+        }
+        return msg.toString();
+    }
 
 }

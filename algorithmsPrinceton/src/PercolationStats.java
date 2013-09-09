@@ -26,8 +26,8 @@ public class PercolationStats {
      * perform T independent computational experiments on an N-by-N grid
      * each experiment opens random sites until system percolates
      *
-     * @param N  gridSize
-     * @param T  numberOftimesExpRuns
+     * @param N gridSize
+     * @param T numberOftimesExpRuns
      */
     public PercolationStats(final int N, final int T) {
 
@@ -71,40 +71,43 @@ public class PercolationStats {
 
     /**
      * sample mean of percolation threshold
+     *
      * @return double
      */
-    public final double mean() {
+    public double mean() {
         return this.mean;
     }
 
     /**
      * sample standard deviation of percolation threshold
+     *
      * @return double
      */
-    public final double stddev() {
+    public double stddev() {
         return this.stddev;
     }
 
     /**
      * returns lower bound of the 95% confidence interval
+     *
      * @return double
      */
-    public final double confidenceLo() {
+    public double confidenceLo() {
         return this.coL;
     }
 
     /**
      * returns upper bound of the 95%
      * confidence interval
+     *
      * @return Double
      */
-    public final double confidenceHi() {
+    public double confidenceHi() {
         return this.coH;
     }
 
 
     /**
-     *
      * @param args
      */
     public static void main(final String[] args) {
