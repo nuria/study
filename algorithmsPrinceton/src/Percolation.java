@@ -1,4 +1,4 @@
-
+import java.util.Arrays;
 
 /**
  * Percolation
@@ -17,9 +17,17 @@ public class Percolation {
     // all positions are initialized to zero, which means closed
     private int[][] opened;
     private int lastNode;
-    private int firstVirtNode;
-    private int lastVirtNode;
     private int ufSize;
+
+    /**
+     * parent of nodes connected to the top*
+     */
+    private int[] fakeTop;
+
+    /**
+     * parent nodes of nodes connected to the bottom*
+     */
+    private int[] fakeBottom;
 
 
     private WeightedQuickUnionUF uf;
@@ -35,7 +43,6 @@ public class Percolation {
         this.gridSize = n;
         //the last node on the grid
         this.lastNode = n * n;
-        this.lastVirtNode = this.lastNode + 1;
 
         // to keep  track of n size grid we need n*n nodes
         //we start at 1
@@ -67,11 +74,23 @@ public class Percolation {
         // first row is nodes 1..n
         // last row is nodes n*n-n.. n*n
 
+        //indexing top array to be n+1 to ease lookups,
+        // not using index 0
+        fakeTop = new int[n];
 
-        /**for (int i=1;i<=n;i++) {
-         uf.union(0,i);
-         uf.union(this.lastVirtNode,this.lastVirtNode-i);
-         } **/
+
+        fakeBottom = new int[n];
+        //positions 1 to n in fake bottom correspond to this.lastNode-n,lastNode
+
+        for (int i = 0; i < n; i++) {
+
+            this.fakeTop[i] = i + 1;
+
+            this.fakeBottom[i] = n * n - i;
+
+
+        }
+
 
     }
 
@@ -136,13 +155,28 @@ public class Percolation {
         int[] arround = new int[]{top, bottom, left, right};
 
 
-
         for (int anArround : arround) {
             if (anArround > 0) {
                 if (this.innerIsOpen(anArround)) {
                     uf.union(node, anArround);
                 }
             }
+        }
+
+
+        //now translate what happened on uf to list of top and bottom nodes
+        int index = 0;
+        for (int item : fakeTop) {
+            //I assume we are looping in order
+            fakeTop[index] = uf.find(item);
+            index++;
+        }
+
+        index = 0;
+        for (int item : fakeBottom) {
+            //I assume we are looping in order
+            fakeBottom[index] = uf.find(item);
+            index++;
         }
 
         this.opened[i][j] = OPENED;
@@ -195,6 +229,7 @@ public class Percolation {
             }
         }
 
+
         return false;
     }
 
@@ -208,15 +243,39 @@ public class Percolation {
         if (this.gridSize == 1) {
             return this.isOpen(1, 1);
         }
-        //TODO quadratic solution improve
-        for (int i = 1; i <= this.gridSize; i++) {
-            if (this.isFull(this.gridSize, i)) {
+
+        /**
+         //TODO improve solution o(nlong) +O(nlogn) ->it is not quadratic
+         for (int i = 1; i <= this.gridSize; i++) {
+         if (this.isFull(this.gridSize, i)) {
+         return true;
+         }
+
+         }**/
+
+        Arrays.sort(this.fakeBottom);
+
+        /**   for(int m = 0; m < this.gridSize;m++){
+
+         System.out.print(", "+this.fakeTop[m]);
+         }
+
+         System.out.println(" -----");
+         for(int m = 0; m < this.gridSize; m++){
+         System.out.print(", "+this.fakeBottom[m]);
+         }
+         System.out.println(" ");
+
+         **/
+
+        for (int item : this.fakeTop) {
+            if (Arrays.binarySearch(this.fakeBottom, item) >= 0) {
                 return true;
             }
-
         }
 
 
+        //System.out.println(this.printUF());
         return false;
     }
 

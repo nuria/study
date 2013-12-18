@@ -49,6 +49,7 @@ public class PercolationTest {
             }
 
         }
+
         /**
          * given a node it returns the node to the left of it
          * in the cross of nodes we have to open
@@ -70,7 +71,6 @@ public class PercolationTest {
             }
 
         }
-
 
 
         /**
@@ -279,11 +279,10 @@ public class PercolationTest {
         Assert.assertTrue(p.top(1) == -1);
         //12 is node '3', thus top should be 1
         Assert.assertTrue(p.top(3) == 1);
-        Assert.assertTrue(p.top(2)==-1);
+        Assert.assertTrue(p.top(2) == -1);
 
 
     }
-
 
 
     @Test
@@ -379,7 +378,7 @@ public class PercolationTest {
         p.open(2, 4);
         p.open(2, 3);
         p.open(2, 2);
-        System.out.println(p.printGrid());
+
 
         p.open(2, 1);
 
@@ -391,6 +390,7 @@ public class PercolationTest {
         p.open(5, 2);
         p.open(6, 2);
         p.open(5, 4);
+        System.out.println(p.printGrid());
         Assert.assertTrue(p.percolates());
     }
 
@@ -401,16 +401,16 @@ public class PercolationTest {
         Assert.assertFalse(" (1,1) should not be full", p.isFull(1, 1));
         p.open(1, 1);
 
-        p.open(2,2);
+        p.open(2, 2);
 
         System.out.println(p.printGrid());
-        p.open(1,2);
+        p.open(1, 2);
 
         System.out.println(p.printGrid());
 
         Assert.assertTrue(p.percolates());
-        Assert.assertTrue(p.isFull(2,2));
-        Assert.assertFalse(p.isFull(2,1));
+        Assert.assertTrue(p.isFull(2, 2));
+        Assert.assertFalse(p.isFull(2, 1));
 
     }
 
