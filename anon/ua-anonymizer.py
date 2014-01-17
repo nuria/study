@@ -1,10 +1,6 @@
 #!/usr/local/bin/python
-import md5
 import re
-# gets a file with IP UA
 # anonymizes ua
-# calculates md5
-# prints md5, as to establish how good of a unique identifier is that
 
 def anonymize(ua):
      # from 1.1.2 ->1.1
@@ -42,14 +38,14 @@ def anonymize(ua):
     # remove stuff like (65FAA2DA-9457-4993-B310-98228E704BBE)
     processed  = re.sub(r'\(((\w|\d)-?)+\)', r'', processed)
 
-
-
     return processed;
 
-
+# to compare unique datasets before an after the algorithm
+# sort | uniq -c
 
 def main():
-    f = open('./80k-moduleStorage.txt')
+    # dataset had IP<space>UA
+    f = open('./some-data-set.txt')
     lines = f.readlines();
     f.close()
 
@@ -67,13 +63,9 @@ def main():
 
         aua = anonymize(ua)
 
-        #print ">"+aua;
+        print ">"+aua;
 
-        fingerprint = md5.new(aua+ip)
-        #print aua;
-
-        print fingerprint.hexdigest()
-        #print aua
+        print aua
 
 
 if __name__ == "__main__":
