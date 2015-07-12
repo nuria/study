@@ -23,27 +23,33 @@ def main():
         signature is a string like '4 + 56'
         that we will evaluate
         '''
+        print "signature: {0} {1} ".format(signature,l)
         if len(l) == 2:
             # base case
-            #print "l[0] {0} l[1] {1} total {2}".format(l[0], l[1], total)
+            print "l[0] {0} l[1] {1} total {2}".format(l[0], l[1], total)
             if l[0] == total - l[1]:
                 signature = signature + "+" + str(l[0]) + "+" + str(l[1])
                 cache.append(signature)
-                #print "valid"
-            elif l[0] == total + l[1]:
+                print "valid"
+            if l[0] == total + l[1]:
                 signature = signature + "+" + str(l[0]) +"-" + str(l[1])
+                print "valid"
                 cache.append(signature)
-                #print "valid"
-            #else:
-                # not a valid solution, what do we do?
-                #print "not valid"
-        else:
+            if 0 == total + l[0]*10  + l[1]:
+                 signature = signature + "-" + str(l[0])+str(l[1])
+                 cache.append(signature)
+            if 0 == total - l[0]*10  - l[1]:
+                signature = signature + "+" + str(l[0])+str(l[1])
+                cache.append(signature)
+        elif len(l) > 2:
+
             # more than 2 numbers, keep recursing, trying different possibilities
             # for grouping
             for i in range(1, len(l)-1):
                 digits = ''
                 for t in range(0,i):
                     digits = digits + str(l[t])
+
                 build(l[i:], total - int(digits), signature + "+" + digits)
                 build(l[i:], total + int(digits), signature + "-" + digits)
 
@@ -54,5 +60,6 @@ def main():
     for key in cache:
             print key
             print eval(key)
+
 if __name__== "__main__":
     main()
