@@ -41,17 +41,27 @@ def main():
             if 0 == total - l[0]*10  - l[1]:
                 signature = signature + "+" + str(l[0])+str(l[1])
                 cache.append(signature)
-        elif len(l) > 2:
 
+        elif len(l) > 2:
             # more than 2 numbers, keep recursing, trying different possibilities
             # for grouping
-            for i in range(1, len(l)-1):
+            for i in range(1, len(l)):
                 digits = ''
                 for t in range(0,i):
                     digits = digits + str(l[t])
 
                 build(l[i:], total - int(digits), signature + "+" + digits)
                 build(l[i:], total + int(digits), signature + "-" + digits)
+
+        elif  len(l) == 1:
+            if l[0] == total*(-1):
+                signature = signature + "-" + str(l[0])
+                cache.append(signature)
+                print "valid"
+            if l[0] == total:
+                signature = signature + "+" + str(l[0])
+                print "valid"
+                cache.append(signature)
 
     build([int(x) for x in l], total, '')
 
