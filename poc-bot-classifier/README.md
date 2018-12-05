@@ -1,3 +1,5 @@
+#scp nuria@stat1007.eqiad.wmnet:~/workplace/classifier_bots/*
+
 1 . Loading of data and sessionize 
         select_training_data.hql, uses webrequest (pageviews plus edit requests) and  eventlogging data, we are iniotally selecting 1 month word of data 
 
@@ -17,3 +19,9 @@
     2) label as human on human dataset 
                 
     3) label as bot on bot dataset
+
+
+Notes: 
+select count(*) from classifier_testing_data_labeled_bot_sorted as bot_sessions join  classifier_testing_data_labeled_bot_model_result labels where labels.sessionId=bot_sessions.sessionId  and labels.label="user";
+
+select count(*) from classifier_testing_data_human_sorted as humans  join  classifier_testing_data_human_model_result labels where labels.sessionId=humans.sessionId  and labels.label="user"
