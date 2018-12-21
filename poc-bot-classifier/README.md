@@ -1,7 +1,7 @@
 #scp nuria@stat1007.eqiad.wmnet:~/workplace/classifier_bots/*
 
 1 . Loading of data and sessionize 
-        select_training_data.hql, uses webrequest (pageviews plus edit requests) and  eventlogging data, we are iniotally selecting 1 month word of data 
+        select_testing_data.hql, uses webrequest (pageviews plus edit requests) and  eventlogging data, we are iniotally selecting 1 day word of data 
 
 
 2. Label in external tables sessions according to a critera
@@ -25,3 +25,9 @@ Notes:
 select count(*) from classifier_testing_data_labeled_bot_sorted as bot_sessions join  classifier_testing_data_labeled_bot_model_result labels where labels.sessionId=bot_sessions.sessionId  and labels.label="user";
 
 select count(*) from classifier_testing_data_human_sorted as humans  join  classifier_testing_data_human_model_result labels where labels.sessionId=humans.sessionId  and labels.label="user"
+
+Look at pages newly classified as bots:
+select count(*) from classifier_data_one_hour_sorted as bot_sessions join  classifier_data_labeled_one_hour labels where labels.sessionId=bot_sessions.sessionId  and labels.label="bot" and labels.agent_type!="spider";
+
+
+https://en.wikipedia.org/wiki/Predictive_analytics#Classification_and_regression_trees_.28CART.29
