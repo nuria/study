@@ -28,10 +28,10 @@ select
 from wmf.webrequest 
 
 where agent_type="user" and access_method="mobile app"
-and year=2018 and month=09 and day=08 
+and year=2019 and month=01 and day=08 
 and is_pageview=1
 -- limiting so we have the same number of pageviews in bots and human dataset 
-and COALESCE(x_analytics_map['wmfuuid'],parse_url(concat('http://bla.org/woo/', uri_query), 'QUERY', 'appInstallID')) is not null LIMIT 400000;
+and COALESCE(x_analytics_map['wmfuuid'],parse_url(concat('http://bla.org/woo/', uri_query), 'QUERY', 'appInstallID')) is not null limit 1000000000;
 
 
 drop table if exists classifier_testing_data_human_sorted;

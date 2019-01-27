@@ -29,11 +29,8 @@ select
     agent_type
 
 from wmf.webrequest
-where year=2018 and month=09 and day=08
-and (is_pageview=1 
-or uri_path="/beacon/event" or uri_query like "%action=edit%")
-
-;
+where year=2019 and month=01 and day=08
+and is_pageview=1 ;
 
 
 -- now sort this data by sessionId so we can compute requests per sec

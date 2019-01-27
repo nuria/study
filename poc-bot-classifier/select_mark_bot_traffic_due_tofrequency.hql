@@ -1,5 +1,9 @@
 use nuria;
 
+-- we are going to sample data by session, classified_data_sorted has all sessions
+
+
+
 drop table if exists classifier_data_labeled;
 
 create table
