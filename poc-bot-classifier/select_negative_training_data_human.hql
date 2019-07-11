@@ -1,8 +1,8 @@
 use nuria;
 -- getting all app install id requests from apps
 
-drop table if exists classifier_testing_data_human;
-create table  classifier_testing_data_human
+drop table if exists classifier_training_data_human;
+create table  classifier_training_data_human
 AS
 select 
     rand(1) row_id,
@@ -34,9 +34,9 @@ and is_pageview=1
 and COALESCE(x_analytics_map['wmfuuid'],parse_url(concat('http://bla.org/woo/', uri_query), 'QUERY', 'appInstallID')) is not null limit 1000000000;
 
 
-drop table if exists classifier_testing_data_human_sorted;
+drop table if exists classifier_training_data_human_sorted;
 
-create table classifier_testing_data_human_sorted
+create table classifier_training_data_human_sorted
 as 
     select *
     from 

@@ -1,8 +1,8 @@
 use nuria;
 -- getting all requests from bots
 
-drop table if exists classifier_testing_data_labeled_bot_all;
-create table  classifier_testing_data_labeled_bot_all
+drop table if exists classifier_training_data_labeled_bot;
+create table  classifier_training_data_labeled_bot
 AS
 select 
     rand(1) row_id,
@@ -30,14 +30,14 @@ and year=2018 and month=09 and day=08
 and is_pageview=1 ;
 
 
-drop table classifier_testing_data_bot_sorted;
+drop table classifier_training_data_bot_sorted;
 
  
  create table
-    classifier_testing_data_bot_sorted
+    classifier_training_data_bot_sorted
  as
     select * 
-    from classifier_testing_data_labeled_bot_all as A 
+    from classifier_training_data_labeled_bot as A 
     order by A.sessionid,ts limit 10000000 ;
 
 
