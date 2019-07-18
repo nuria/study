@@ -1,57 +1,32 @@
-# quicksort
-# this implementation chooses as pivot the 1st element
+#!/usr/localbin/python
+# execute like python blah.py "[1,4,6,0, 2]"
 
-# partition arround a pivot
-def partition(a):
-	p = a[0];
-	# keeps track of <p elements
-	i =0
-	# keeps track of the elements we have seen
-	j = 0
-	
-	for j in range(1,len(a)):
-		element = a[j]
-		if a[j]<=p:
-			current = a[j]
-			firstBig = a[i+1]
-			a[j] = firstBig
-			a[i+1] = current
-			i = i+1;
-	#swap pivit with a[i-1]
-	a[0] = a[i]
-	a[i] = p
-	
-	# we return the index that splits the <p 
-	# part of the array
-	return i,a	
+import sys
+import ast
 
-def quicksort(a):
-	i,a = partition(a);
+l  = ast.literal_eval(sys.argv[1])
 
-	#print "semi sorted array"
-	#print a
-	#print "the boundary is"+str(i)
+def partition(l):
+    if len(l) <= 1:
+        return l
 
-	left = a[0:i+1];
-	if len (left) > 1:
-		left = quicksort(left) # will get indexes 0 to i
-	
-	right = a[i+1:len(a)];
-	if len(right) > 1:
-		right  = quicksort(right);
-
-	return left+right
+    p = l[0]
+    i = 1
+    for k in  range(1, len(l)):
+        if l[k] <= p:
+            tmp = l[i]
+            l[i] = l[k]
+            l[k] = tmp
+            i = i + 1
 
 
-file = open ('./testCase1.txt');
-#file = open('./QuickSort.txt');
-A = [];
-for line in file:
-	A.append(int(line));
+    less = l[1:i]
+    more = l[i:len(l)]
 
+    print ("less: {0} and more {1} and i boundary {2}").format(less, more,i)
+    return(partition(less) +[p] + partition(more))
 
-s = quicksort(A);
+map(int,l)
+print l
 
-print "sorted"
-print s
-
+print partition(l)
