@@ -26,7 +26,7 @@ select
 
 from wmf.webrequest 
 where agent_type="spider"
-and year=2018 and month=09 and day=08
+and year=2018 and month=7 and day=1
 and is_pageview=1 ;
 
 

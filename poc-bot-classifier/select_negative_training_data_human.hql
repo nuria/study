@@ -28,7 +28,7 @@ select
 from wmf.webrequest 
 
 where agent_type="user" and access_method="mobile app"
-and year=2019 and month=01 and day=08 
+and year=2019 and month=07 and day=01 
 and is_pageview=1
 -- limiting so we have the same number of pageviews in bots and human dataset 
 and COALESCE(x_analytics_map['wmfuuid'],parse_url(concat('http://bla.org/woo/', uri_query), 'QUERY', 'appInstallID')) is not null limit 1000000000;
@@ -40,6 +40,6 @@ create table classifier_training_data_human_sorted
 as 
     select *
     from 
-    classifier_testing_data_human
+    classifier_training_data_human
     order by sessionId,ts limit 1000000000;
 
