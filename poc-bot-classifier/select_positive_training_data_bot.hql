@@ -51,7 +51,7 @@ as
 create table classifier_training_data_bot_sorted 
 as
     select * from classifier_training_data_bot_sorted_tmp b
-    where b.sessionId in (select sessionId from distinct_sessions) 
+    where b.sessionId in (select sessionId from distinct_sessions_bot) 
     order by b.sessionId limit 10000000;
 
 drop table distinct_sessions_bot;

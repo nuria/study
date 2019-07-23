@@ -6,7 +6,7 @@
 use nuria;
 
 
-drop table if exists ${input_table};
+drop table if exists ${output_table};
 
 create table
     ${output_table}
