@@ -26,19 +26,36 @@ select
 
 from wmf.webrequest 
 where agent_type="spider"
-and year=2018 and month=7 and day=1
+and year=2019 and month=7 and day=1
 and is_pageview=1 ;
 
 
-drop table classifier_training_data_bot_sorted;
+drop table if exists classifier_training_data_bot_sorted_tmp;
+drop table if exists distinct_sessions_bot;
+drop table if exists classifier_training_data_bot_sorted; 
 
- 
+
  create table
-    classifier_training_data_bot_sorted
+    classifier_training_data_bot_sorted_tmp
  as
     select * 
     from classifier_training_data_labeled_bot as A 
     order by A.sessionid,ts limit 10000000 ;
+
+-- we need data of equal size, just get 100000 sessions
+create table distinct_sessions_bot
+as
+    select distinct sessionId from classifier_training_data_bot_sorted_tmp limit 100000;
+
+
+create table classifier_training_data_bot_sorted 
+as
+    select * from classifier_training_data_bot_sorted_tmp b
+    where b.sessionId in (select sessionId from distinct_sessions) 
+    order by b.sessionId limit 10000000;
+
+drop table distinct_sessions_bot;
+drop table classifier_training_data_bot_sorted_tmp;
 
 
 
