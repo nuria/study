@@ -1,11 +1,17 @@
+-- This is an, ahem, hive script to produce a labeld dataset
+-- It works on top of a table that stores pseudo-session data
+--- You need to pass an input and output tables
+--- like hive -f this.hql -d input_table=classifier_data_sorted -d output_table=classifier_data_labeled
+
 use nuria;
 
-drop table if exists  classifier_testing_data_labeled_bot_model_result;
+
+drop table if exists ${input_table};
 
 create table
-    classifier_testing_data_labeled_bot_model_result
+    ${output_table}
 as
-select
+select 
     sessionId,
     (unix_timestamp(max(ts)) - unix_timestamp( min(ts))) as session_length_secs,
     count(*) number_of_requests,
@@ -25,15 +31,10 @@ select
    end as label
 
 from
-    nuria.classifier_testing_data_labeled_bot_sorted st
+    ${input_table} 
 group by 
-    st.sessionId, agent_type, user_agent;
+    sessionId, agent_type, user_agent;
 
--- group by label, ideally most everything is labelled as bot 
---select count(*), label from classifier_training_bot_data_model_result group by label;
-
--- now join to see true positives (they have to be calculated in requests, not sessions)
--- select count(*), label from classifier_labeled_bot_data_sorted s right join classifier_training_bot_data_model_result l on (s.sessionId=l.sessionid) group by label;
 
 
 

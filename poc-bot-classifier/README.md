@@ -1,38 +1,42 @@
 #scp nuria@stat1007.eqiad.wmnet:~/workplace/classifier_bots/*
 
-1 . Loading of data and sessionize 
-        select_testing_data.hql, uses webrequest (pageviews plus edit requests) and  eventlogging data, we are iniotally selecting 1 day word of data 
+We get 1 day of webrequest pageview data (we call this our test dataset) and we calculate pseudo sessions for the purpose
+of identifying entities that do too-many requests in a given time period
+
+So, the bot identification does not work on pageview data but rather on sessions of pageviews
+
+How do we identify bots?
+
+Our basic criteria is to label as bot the automated traffic spikes
+that distort our pageview numbers so labeling of bots by this algorithm 
+is done mostly by calculating request frequencies.
+
+We do two things. First, we get two datasets that we call "labeled" (human and bot pageviews) 
+and we apply this vert simplistic algorithm and (borrowing from ML ideas) we calculate a 
+confusion matrix. 
+
+After, we use our "testing" data, 1 day of webrequest pageviews and we see what results we get 
+of running that data through the bot detecting algorithm. To be clear the algorithm not a classifier
+but rather just a 'criteria to label' that can be used to build a good dataset that can be used as 
+the data to train a classifier.
 
 
-2. Label in external tables sessions according to a critera
-    select_mark_bot_traffic_due_tofrequency.hql
 
+The most ciomplicated part of this is to come up with the "labeled" datasets, for the "human"
+data we have used data from apps with app-install-ids which contains very few automated requests.
+For the "bot" labeled data we have used pageviews tagged as "spider" (self-reported-bots). This data also includes a fair amount of requests
+at low volume by "good" bots.
 
-3. Negative sets:
-    - apps data (mostly a human dataset)
-    - requests detected as bot that appear more than 5 times in our time period
-
-    Once we have marked our "negative" datasets, see how many records are: 
-    
-    1) not labeled 
-    
-    2) label as human on human dataset 
-                
-    3) label as bot on bot dataset
 
 
 Notes: 
 
+-- group by label, ideally most everything is labelled as bot
+--select count(*), label from classifier_training_bot_data_model_result group by label;
 
-select count(*) from classifier_testing_data_labeled_bot_sorted as bot_sessions join  classifier_testing_data_labeled_bot_model_result labels where labels.sessionId=bot_sessions.sessionId  and labels.label="user";
+-- now join to see true positives (they have to be calculated in requests, not sessions)
+-- select count(*), label from classifier_labeled_bot_data_sorted s right join classifier_training_bot_data_model_result l on (s.sessionId=l.sessionid) group by label;
 
-select count(*) from classifier_testing_data_human_sorted as humans  join  classifier_testing_data_human_model_result labels where labels.sessionId=humans.sessionId  and labels.label="user"
-
-Look at pages newly classified as bots:
-select count(*), agent_type from classifier_data_sorted_no_el as bot_sessions join classifier_data_labeled_no_el labels where labels.sessionId=bot_sessions.sessionId and labels.label="bot" group by labels.agent_type;
-
-Look at false negatives:
-select count(*), agent_type from classifier_data_sorted_no_el as bot_sessions join classifier_data_labeled_no_el labels where labels.sessionId=bot_sessions.sessionId and labels.label="user" group by labels.agent_type;
 
 
 https://en.wikipedia.org/wiki/Predictive_analytics#Classification_and_regression_trees_.28CART.29
