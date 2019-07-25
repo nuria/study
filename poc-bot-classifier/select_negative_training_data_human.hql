@@ -51,7 +51,7 @@ create table distinct_sessions as
 
 create table classifier_training_data_human_sorted as 
     select * from classifier_training_data_human_sorted_tmp c 
-    where c.sessionId in (select sessionId  from distinct_sessions) order by sessionId limit 100000000;
+    where c.sessionId in (select sessionId  from distinct_sessions) order by sessionId, ts limit 100000000;
 
 drop table distinct_sessions;
 drop table classifier_training_data_human_sorted_tmp;

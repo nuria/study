@@ -30,12 +30,8 @@ at low volume by "good" bots.
 
 
 Notes: 
-
--- group by label, ideally most everything is labelled as bot
---select count(*), label from classifier_training_bot_data_model_result group by label;
-
--- now join to see true positives (they have to be calculated in requests, not sessions)
--- select count(*), label from classifier_labeled_bot_data_sorted s right join classifier_training_bot_data_model_result l on (s.sessionId=l.sessionid) group by label;
+hive -f select_mark_bot_traffic_due_tofrequency.hql -d input_table=classifier_training_data_human_sorted -d output_table=classifier_training_data_human_sorted_processed
+hivve -f select_mark_bot_traffic_due_tofrequency.hql -d input_table=classifier_training_data_bot_sorted -d output_table=classifier_training_data_bot_sorted_processed
 
 
 
