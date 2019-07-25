@@ -88,7 +88,7 @@ def computeMinimunCut(graph):
 
     # enter new vertex
     graph[merged_vertex_name] = final_edges
-    return computeMinimunCut(copy.deepcopy(graph))
+    return computeMinimunCut(graph)
 
 
 graph = buildGraphFromFile(sys.argv[1])
@@ -98,7 +98,7 @@ graph = buildGraphFromFile(sys.argv[1])
 num_vertexes = len(graph.keys())
 crossing_edges = 2 * num_vertexes
 
-i  =  20
+i  =  30
 minimun_cut = graph
 
 while i > 0:
