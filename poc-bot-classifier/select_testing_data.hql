@@ -18,7 +18,7 @@ select
     ip,
     lower(uri_host) AS domain,
     -- long user agents are  asign of bot traffic 
-    md5(concat(ip, substr(user_agent,0,200), accept_language, uri_host)) AS sessionId,
+    md5(concat(ip, substr(user_agent,0,200), accept_language, uri_host,COALESCE(x_analytics_map['wmfuuid'],parse_url(concat('http://bla.org/woo/', uri_query), 'QUERY', 'appInstallID'),''))) AS sessionId,
     http_status,
     uri_path,
     uri_query,
