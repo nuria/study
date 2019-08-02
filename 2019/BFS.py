@@ -1,6 +1,8 @@
 #!/bin/python
 
 """
+Calculate distance in an eually weighted graph
+
 The first line contains an integer , the number of queries. Each of the following  sets of lines has the following format:
 
 The first line contains two space-separated integers  and , the number of nodes and edges in the graph.
@@ -27,10 +29,6 @@ Output:
 """
 
 
-import math
-import os
-import random
-import re
 import sys
 from collections import deque
 
@@ -47,46 +45,52 @@ from collections import deque
 """
 
 def bfs(n, m, edges, s):
-    graph = {}
     # n = number of nodes
     # assume nodes are named sequentially
-    for i in range(1,n+1):
-        graph[i] = []
-        for edge in edges:
-            if edge[0] == i:
-                graph[i].append(edge[1])
-            elif edge[1] == i:
-                graph[i].append(edge[0])
-
-    explored = []
+    # 1 to n
+    # edge_case: is edges empty
+    result = []
+    explored = {}
     distance = {}
     # initialize s distance as zero
     distance[s] = 0
 
+
     EDGE_VALUE = 6
     Q = deque()
     Q.append(s)
-    explored.append(s)
+
+    explored[s] = 1
 
     while len(Q) > 0:
         # fifo
         node = Q.popleft()
-        for edge in graph[node]:
-            if edge not in explored:
-                distance[edge] = distance[node] + EDGE_VALUE
-                Q.append(edge)
-                explored.append(edge)
 
+        # for large graphs list comprehensions are way faster
+        for edge in [x for x in edges if x[0]==node or x[1]==node]:
+            next_node = None
+            if node == edge[0]:
+                next_node = edge[1]
+            elif node == edge[1]:
+                next_node = edge[0]
+
+            if next_node is not None and explored.get(next_node) is None:
+                distance[next_node] = distance[node] + EDGE_VALUE
+                Q.append(next_node)
+                explored[next_node] = 1
+
+    del edges
     # all distances should be in, for the nodes not there the distance is "-1"
-    result = []
-
-    for k in sorted(graph.keys()):
-        if distance.get(k) is None:
-            result.append(-1)
-        elif k == s:
-            next
-        else:
-            result.append(distance.get(k))
+    # result has to be reported in sequence
+    for k in range(1, n+1):
+        seen_root = False
+        d = distance.get(k)
+        if d is None:
+            d = -1
+        elif not seen_root and k == s:
+            seen_root = True
+            continue
+        result.append(d)
 
     return result
 
@@ -109,8 +113,6 @@ for q_itr in xrange(q):
     # edges looks like: [[1, 2], [1, 3]]
 
     # search start at s, know that if
-    # not all nodes appear on the edges list we have a lonely node
-    # let's calculate 1st distance to connected nodes
     result = bfs(n, m, edges, s)
 
     print ' '.join(map(str, result))
