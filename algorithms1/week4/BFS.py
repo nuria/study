@@ -66,8 +66,8 @@ def bfs(n, m, edges, s):
         # fifo
         node = Q.popleft()
 
-        # filter helps with perf, moves loop work to
-        for edge in edges:
+        # for large graphs list comprehensions are way faster
+        for edge in [x for x in edges if x[0]==node or x[1]==node]:
             next_node = None
             if node == edge[0]:
                 next_node = edge[1]
@@ -79,7 +79,7 @@ def bfs(n, m, edges, s):
                 Q.append(next_node)
                 explored[next_node] = 1
 
-
+    del edges
     # all distances should be in, for the nodes not there the distance is "-1"
     # result has to be reported in sequence
     for k in range(1, n+1):
@@ -92,7 +92,6 @@ def bfs(n, m, edges, s):
             continue
         result.append(d)
 
-    del edges
     return result
 
 f = open(sys.argv[1])
