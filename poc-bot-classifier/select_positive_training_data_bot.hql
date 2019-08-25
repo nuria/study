@@ -43,15 +43,16 @@ drop table if exists classifier_training_data_bot_sorted;
     order by A.sessionid,ts limit 10000000 ;
 
 -- we need data of equal size, just get 100000 sessions
+SET hive.groupby.orderby.position.alias=false
 create table distinct_sessions_bot
 as
-    select distinct sessionId from classifier_training_data_bot_sorted_tmp limit 100000;
+    select sessionId, count(*) as c  from classifier_training_data_bot_sorted_tmp group by sessionId limit 100000;
 
 
 create table classifier_training_data_bot_sorted 
 as
     select * from classifier_training_data_bot_sorted_tmp b
-    where b.sessionId in (select sessionId from distinct_sessions_bot) 
+    where b.sessionId in (select sessionId from distinct_sessions_bot where c >10) 
     order by b.sessionId,ts limit 10000000;
 
 drop table distinct_sessions_bot;

@@ -28,10 +28,14 @@ For the "bot" labeled data we have used pageviews tagged as "spider" (self-repor
 at low volume by "good" bots.
 
 
+_sorted tables indicate sessions
+_sorted_processed is really labeled data 
+
 
 Notes: 
-hive -f select_mark_bot_traffic_due_tofrequency.hql -d input_table=classifier_training_data_human_sorted -d output_table=classifier_training_data_human_sorted_processed
-hivve -f select_mark_bot_traffic_due_tofrequency.hql -d input_table=classifier_training_data_bot_sorted -d output_table=classifier_training_data_bot_sorted_processed
+hive -f select_mark_automated_traffic.hql -d input_table=classifier_data_sorted -d output_table=classifier_data_sorted_processed
+hive -f select_mark_automated_traffic.hql -d input_table=classifier_training_data_human_sorted -d output_table=classifier_training_data_human_sorted_processed
+hive -f select_mark_automated_traffic.hql -d input_table=classifier_training_data_bot_sorted -d output_table=classifier_training_data_bot_sorted_processed
 
 
 
