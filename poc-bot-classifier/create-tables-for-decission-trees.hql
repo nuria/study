@@ -3,8 +3,8 @@ use nuria;
 drop table if exists model_training_data_tmp;
 
 -- the number of sessions has to be the same for both datasets 
--- we choose "user" requests from user dataset plus "automated"
--- requests from "bots" dataset
+-- we choose "user" pageviews from user dataset plus "automated"
+-- pageviews from "bots" dataset
 
 
 -- Although model does not need sessionId we include it as a way to be able to order data arbitrarily
@@ -20,14 +20,14 @@ drop table if exists model_training_data;
 
 create table model_training_data
     as 
-    select sessionId, session_length_secs, number_of_requests, request_ratio_per_min,nocookies,user_agent_length, label  
+    select sessionId, session_length_secs, number_of_pageviews, pageview_ratio_per_min,nocookies,user_agent_length, label  
     from model_training_data_tmp;
 
 
 drop table if exists  model_training_data_tmp;
 
 
--- now use the data we have labeled from general requests as testing data
+-- now use the data we have labeled from general pageviews as testing data
 
 drop table if exists model_testing_data_tmp;
 
@@ -41,7 +41,7 @@ drop table if exists model_testing_data;
 
 create table model_testing_data 
     as 
-    select sessionId, session_length_secs, number_of_requests, request_ratio_per_min,nocookies,user_agent_length, label
+    select sessionId, session_length_secs, number_of_pageviews, pageview_ratio_per_min,nocookies,user_agent_length, label
     from model_testing_data_tmp;
 
 drop table if exists model_testing_data_tmp;

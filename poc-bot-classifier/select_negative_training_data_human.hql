@@ -1,5 +1,5 @@
 use nuria;
--- getting all app install id requests from apps
+-- getting all app install id pageviews from apps
 
 drop table if exists classifier_training_data_human;
 create table  classifier_training_data_human

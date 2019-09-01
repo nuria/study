@@ -1,5 +1,5 @@
 use nuria;
--- getting all requests from bots
+-- getting all pageviews from bots
 
 drop table if exists classifier_training_data_labeled_bot;
 create table  classifier_training_data_labeled_bot

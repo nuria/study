@@ -33,7 +33,7 @@ where year=2019 and month=07 and day=01
 and is_pageview=1 ;
 
 
--- now sort this data by sessionId so we can compute requests per sec
+-- now sort this data by sessionId so we can compute pageviews per min
 drop table classifier_data_sorted;
 
 create table 
