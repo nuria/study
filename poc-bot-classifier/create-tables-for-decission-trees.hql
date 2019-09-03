@@ -33,9 +33,10 @@ drop table if exists model_testing_data_tmp;
 
 create table model_testing_data_tmp
     as 
-    select * from classifier_data_sorted_processed where label="user" limit 2000
+    -- make sure to exclude self-reported bots with little traffic
+    select * from classifier_data_sorted_processed where label="user" and agent_type="user" limit 2000
     UNION ALL
-    select * from classifier_data_sorted_processed where label="automated" limit 2000;
+    select * from classifier_data_sorted_processed where label="automated"  limit 2000;
 
 drop table if exists model_testing_data;
 
