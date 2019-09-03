@@ -24,10 +24,10 @@ select
         when count(*) < 10 then 'user'
         -- more than 1000 pageviews per time-period (generous limit, user dataset is less than 1000)
         when count(*) > 1000 then 'automated'
-        -- more than 10 pageviews with nocookies in 10 secs  
-        when sum(coalesce(nocookies, 0L)) > 10 and (unix_timestamp(max(ts)) - unix_timestamp( min(ts))) <= 10   then 'automated' 
+        -- more than 10 pageviews with nocookies  
+        when sum(coalesce(nocookies, 0L)) > 10    then 'automated' 
         -- threshold for bots at N pageviews per min, pretty high 
-        when cast((count(*)/(unix_timestamp(max(ts)) - unix_timestamp( min(ts))) * 60) as int) >= 20 then 'automated'
+        when cast((count(*)/(unix_timestamp(max(ts)) - unix_timestamp( min(ts))) * 60) as int) >= 30 then 'automated'
         when length(user_agent) > 400 or length(user_agent) < 50 then 'automated'
         -- low pageview ratios as low as 1 per min
         when cast((count(*)/(unix_timestamp(max(ts)) - unix_timestamp( min(ts))) * 60) as int) = 0 then 'user'
