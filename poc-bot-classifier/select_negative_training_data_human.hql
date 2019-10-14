@@ -28,7 +28,7 @@ select
 from wmf.webrequest 
 
 where agent_type="user" and access_method="mobile app"
-and year=2019 and month=07 and day=01 
+and year=2019 and month=09 and day=01 
 and is_pageview=1
 and COALESCE(x_analytics_map['wmfuuid'],parse_url(concat('http://bla.org/woo/', uri_query), 'QUERY', 'appInstallID')) is not null limit 1000000000;
 
