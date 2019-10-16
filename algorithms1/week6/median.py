@@ -1,147 +1,103 @@
-# The goal of this problem is to implement 
-# the 'Median Maintenance' algorithm (covered in the Week 5 lecture on heap applications
-# The text file contains a list of the integers from 1 to 10000 in unsorted order
-# you should treat this as a stream of numbers, arriving one by one. 
-# Letting xi denote the ith number of the file, 
-# the kth median mk is defined as the median of the numbers x1,.,xk. 
-#(So, if k is odd, then mk is ((k+1)/2)th smallest 
-#number among x1,...,xk; if k is even, then mk is the (k/2)th smallest number among x1,...,xk.)
+#!/usr/local/bin/python
+# for a stream of N items calculates the median
+# media is item x[N/2] (even) or x[N+1/2] (odd)
 
-import heapdict as hpdict
-
-# negating entries to support extract max with a min heap
-class MaxHeap:
-	def __init__(self):
-		self.heap = hpdict.heapdict()
-	def add(self,item):
-		priority = item*(-1)
-		self.heap[item] = priority
-	def remove(self,item):
-		del self.heap[item]
-	def peekitem(self):
-		return self.heap.peekitem()[0]
-	def popitem(self):
-		return self.heap.popitem()[0]
-	def getHeap(self):
-		return self.heap
-	def getLen(self):
-		return len(self.heap)
-
-def heapToString(h):
-	msg =" heap {"
-	for i in h.keys():
-		msg = msg +" "+str(i)+" :"+str(h[i])
-	return msg+"}"
+# solution is the sum of these N medians, modulo N
+# note that  we are treating  the stream of numbers as real time
+# so we are computing a median EVERYTIME we ngest a number
+# and computing at the end the sum of all those medians
+# the name median makes sense if you do not think is the median of the full set
 
 
-
-f = open('./Median.txt','r');
-#f = open('./testCase4.txt');
-D = [] ; #data array , holds the whole dataset
-
-# we will negate values to insert them and 'un-negate' them to compare
-# as python only supports min heap
-lowHeap = MaxHeap(); #supports extract MAX
-highHeap =hpdict.heapdict(); #supports extract MIN
-
-for line in f:
-	D.append(int(line));
+import heapq as h
+import sys
 
 
-maxLowHeap = None;
-minLowHeap = None;
+class Heap():
+    def __init__(self, maxHeap=False):
+        self.heap = []
+        self.maxHeap =  maxHeap
 
-k = 0
-sumMedian = 0;
+    def addItem(self,item):
+        # negating items so largest would be at root (with wrong sign)
+        if self.maxHeap is True:
+            h.heappush(self.heap, item *(-1))
+        else:
+            h.heappush(self.heap, item)
 
-for x in D:
-	k = k+1
-	# we need to initialize those
-	if lowHeap.getLen()==0:
-		lowHeap.add(x)
-		sumMedian = x;
-		continue;
-	elif len(highHeap) ==0:
-		# see where does the second entry fit
-		prior = lowHeap.peekitem()
-		if x>prior:
-			#insert into high heap
-			highHeap[x] = x;
-			sumMedian = sumMedian*2; #we know is the same median than before
-		else:
-		   #insert into low heap
-		   lowHeap.remove(prior)
-		   lowHeap.add(x)
-		   highHeap[prior]=prior
-		   sumMedian = sumMedian+x
-		continue;
+    def getRootItem(self):
+        if len(self.heap) == 0:
+            return None
+        item = h.heappop(self.heap)
+        if self.maxHeap :
+            item = item * (-1)
+        return item
 
-	maxLowHeap = lowHeap.peekitem()
-	minHighHeap = highHeap.peekitem()[0]
+    def peekRootItem(self):
+        if len(self.heap) == 0:
+            return None
+        item = min(self.heap)
+        if self.maxHeap :
+            item = item * (-1)
+        return item
 
+    # TODO improve , this can be o(1)
+    def getSize(self):
+        return len(self.heap)
 
-	if x < maxLowHeap:
-		#insert in low heap
-		lowHeap.add(x);
-		lowHeap.remove(maxLowHeap)
-		highHeap[maxLowHeap] = maxLowHeap
-	elif x> minHighHeap:
-		highHeap[x] =x
-		del highHeap[minHighHeap]
-		lowHeap.add(minHighHeap)
-	else :
-		# x could be inserted in either heap
-		# let's actually insert it on the high heap
-		highHeap[x] = x
-	
-	# rebalance
-	lLow =lowHeap.getLen()
-	lHigh = len(highHeap)
-	# the way we are doing it we cannot be off for more than one
-	if lLow>lHigh+1:
-		#move from low to high
-		maxLowHeap = lowHeap.popitem();
-		highHeap[maxLowHeap] = maxLowHeap
-	elif lHigh>lLow+1:
-		#move from high to low
-		minHighHeap = highHeap.popitem()[0];
-		lowHeap.add(minHighHeap)
+    def toString(self):
+        return self.heap
 
-	#recalculate lengths
-	lLow =lowHeap.getLen()
-	lHigh = len(highHeap)
+def main():
+    medians = []
+
+    f = open(sys.argv[1])
+    # this is a max heap, max is root
+    heap_low = Heap(True)
+    # this is a min heap, min is root
+    heap_high = Heap()
+
+    for l in f:
+        item = int(l.strip())
+
+        if heap_low.getSize() == 0:
+            heap_low.addItem(item)
+        # if there are 13 items, heap low needs to have 7
+        # if the k median of an odd number is (k+1)/2
+        # for an even number is k/2
+        elif item < heap_low.peekRootItem():
+            heap_low.addItem(item)
+            # adjust and rebalance
+            if heap_low.getSize()  -heap_high.getSize() >1:
+                heap_high.addItem(heap_low.getRootItem())
+        else:
+            heap_high.addItem(item)
+            if heap_high.getSize() > heap_low.getSize():
+                heap_low.addItem(heap_high.getRootItem())
+
+        medians.append(heap_low.peekRootItem())
+
+        #print heap_low.toString()
+        #print heap_high.toString()
 
 
-	if k % 2 ==0:
-		half = int(k/2)
-	else: 
-		half = int((k+1)/2)
-	
-	#print "k"+str(k)
-	#print "m="+str(half)
-	#print "x"+str(x)
+    # now get k item
+    size1 = heap_low.getSize()
+    size2 = heap_high.getSize()
+    print "first heap {0} elements, second heap {1} elements".format(size1, size2)
 
-	#print "low heap"
-	#print heapToString(lowHeap.getHeap())
-	#print "high heap"
-	#print heapToString(highHeap)
+    N  = len(medians)
+    #print medians
+    # this thing of calling "median" the sum is a bit strange
+    median = reduce(lambda x,y: x+y, medians)
 
-	#print "median"
-	if half>lLow:
-		#print "from high heap "+str(highHeap.peekitem()[0])
-		sumMedian = sumMedian +highHeap.peekitem()[0];
-	else :
-		#print "from low heap " +str(lowHeap.peekitem());
-		sumMedian = sumMedian+ lowHeap.peekitem();
-	#print "----sum median"+str(sumMedian)
+    print median
 
-# done with heaping, print heaps
+    print (median % N)
 
-print "low heap"
-#print heapToString(lowHeap.getHeap())
+if  __name__=='__main__':
+    main()
 
-print "high heap"
-#print heapToString(highHeap)
 
-print "sum median for "+str(k)+" items"
-print sumMedian
+
+
