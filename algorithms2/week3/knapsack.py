@@ -1,131 +1,101 @@
-#In this programming problem 
-#and the next you'll code up the knapsack algorithm from lecture
+#!/usr/local/bin/python
 
-import csv as csv
+import sys
 import md5
-import time
+'''
+The input file lines are space separated like:
+value weight
 
-def knapsack(i,size,value,weight,d):
-	keySrc = md5.new();
+'''
 
-	keySrc.update(str(i)+"-"+str(size));
-	
-	key = keySrc.digest();
-
-	# storing only the keys we need in a hashmap
-	if d.get(key)!=None: 
-		return d[key]
-
-
-	wi = weight[i];
-	vi = value [i];
-	if i==0:
-		if wi <size:
-			d[key]= vi;
-			return vi;
-		else:
-			d[key] = 0
-			return 0;
-
-	subproblem1 =0
-	if wi<= size:
-		subproblem1 = vi+knapsack(i-1,size-wi,value,weight,d)
-	
-	subproblem2= knapsack(i-1,size,value,weight,d)
-	
-	if subproblem2> subproblem1:
-		d[key] = subproblem2  
-	else: 
-		d[key] = subproblem1
-
-	return d[key]
-
-
-def iterative(value, weight,m,n,W):
-	print "iterating"
-	for i in range(1,n+1):
-		wi = weight[i-1]
-		vi = value[i-1]
-		# we are using a matrix with three rows 
-		# are recycling them, brough time down from 25 mins to 8 mins
-		if i<3:
-			j =i
-			prior = i-1
-		else:
-			j = (i % 3)
-			if j==0:
-				prior = 2;
-			else:
-				prior = j-1
-		for w in range(0,W):
-			subproblem1 = m[prior][w]
-			if w-wi<0:
-				subproblem2 = -1000;
-			else: 
-				subproblem2 = m[prior][w-wi]+vi
-		
-			if subproblem1 > subproblem2:
-				m[j][w] = subproblem1
-			else:
-				m[j][w] = subproblem2
-	
-		# free up some memory
-		#if (i>=2):
-		#	m[i-2] = []
-
-	
-	return m[j][W-1]
-
-
-
-f = open('./knapsack2.txt');
-reader = csv.reader(f,delimiter=" ",quoting=csv.QUOTE_NONE)
-
-value = [];
-weight =[]
-
-#W = 10000;
-#n = 100
-
+# knapsack2 problem
 W = 2000000;#knapsack size
 n = 500 ;#total number of items
 
-#values testcase1
-#W = 10;
-#n = 4
-
-#values test case2
-#W = 750
-#n = 15
+#W = 10
 
 
-# matrix [i,w] maximun -combined- value
-# of any subset of items from {1..i} of size 
-# ad most w
-# of this matrix  m[n,W]
-# is our solution
-# using list comprehensions in python
-# this is initializing the matrix all to 0
-# trying to optimize and only keeping three rows
-#m =  [[0 for w in range(W)] for i in range(3)]
-
-t0 = time.time();
-for row in reader:
-	value.append(int(row[0]))
-	weight.append(int(row[1]))
+def r_knapsack(i,w,values, weights, K):
+    _hash = md5.new()
+    _hash.update(str(i) + " -" + str(w))
+    key = _hash.digest()
 
 
+    if K.get(key) is not None:
+        return K[key]
+
+    if i == 0 or w ==0:
+        K[key] = 0
+    else :
+        # what was the prior value at this weight
+        wi = weights[i]
+        vi = values[i]
+        prior = r_knapsack(i-1, w, values, weights, K)
+        # next value
+        if w-wi > 0:
+            current = r_knapsack(i-1,w-wi, values, weights, K) + vi
+            K[key] = max(prior, current)
+        else:
+            K[key] = prior
+
+    return  K[key]
 
 
-print "maximum value"
-#max = iterative(value, weight,m,n,W)
 
-# let's try to use a dictionary for recursion case:
-d = {}
-max = knapsack(n-1,W-1,value,weight,d)
+def knapsack(values, weights, W):
 
-t1 = time.time();
+    K = [ [0 for w in  range(0, W)] for i in range(0,4)]
 
-print max
 
-print "time knapsacking" +str(t1-t0)+" secs"
+    for w in range(0, W):
+        for i in range(0,4):
+            K[i][w] = 0
+
+    LAST  = 0
+    for i in  range(1, len(values)):
+        for w in range(0, W):
+            if i < 3:
+                prior = i-1
+                current = i
+                _next = i+1
+            elif i % 3 == 0:
+                prior = 2
+                current =3
+            elif i % 3 == 2:
+                prior = 1
+                current =2
+            else:
+                prior = 3
+                current =1
+
+            LAST = current
+            # items of weight w excludes item Vi
+            excluding_current=K[prior][w]
+            if  w -weights[i] > 0:
+                including_current = K[prior][w- weights[i]] + values[i]
+                K[current][w] = max(excluding_current, including_current)
+            else :
+                K[current][w] = excluding_current
+
+    return K[current][W-1]
+
+def main():
+    f = open(sys.argv[1])
+    # adding zeros makes it more clear?
+    values = [0]
+    weights = [0]
+    for l in f:
+        (value, weight) = l.split()
+        values.append(int(value))
+        weights.append(int(weight))
+
+    sorted(values)
+    sorted(weights)
+
+    # print knapsack(values, weights,W)
+    D = {}
+    print r_knapsack(n, W, values, weights, D)
+
+
+if __name__=="__main__":
+    main();
