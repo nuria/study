@@ -1,113 +1,86 @@
+#/usr/local/bin
+import sys
 
-# file with 500 nodes and hudresd of edges
-# n1, n2 , edge cost
-# write algorithm that calculates cost of MST
+import heapdict
+"""
+The first line has two space-separated integers  and , the number of nodes and edges in the graph.
 
-
-import csv as csv
-import heapq as hp
-
-
-
-def getHeapLowerCostEdge(X,G):
-	h =[]
-	keys = X.keys();
-	_edges = []# really tuples of node,cost
-	for key in keys:
-		edges = G[key]
-		for edge in edges:
-			_node = edge[0]
-			if X.get(_node)==None:
-				_edges.append(edge);
-
-	for edge in _edges:
-		node = edge[0]
-		cost = edge[1]
-		#add edge to heap
-		hp.heappush(h,(cost,node))
-	
-	return h
+Each of the next  lines contains three space-separated integers ,  and , the end nodes of , and the edge's weight.
+The last line has an integer , denoting the starting node.
+"""
 
 
 
+h = heapdict.heapdict()
 
-					
-f  = open('./MSTdata.txt', "rb")
-reader = csv.reader(f, delimiter=' ', quoting=csv.QUOTE_NONE)
+def mst(N, start):
+    # empty set of nodes "visited"
+    X = set()
+    T = {}
+    # initialize X
+    X.add(start)
 
-# each vertext points to edges incident on it
-G = {}; #hasmap,represents graph, each vertex is an index
-		# each index has an array of vertexes
-		#A : [(B,2),(C,3)]
-		#B: [(A,2)]
-		#C:[(A,3)]
+    T[start] = []
 
-#each edge points to its end points
-edges =[]
+    tmp_h = []
 
-X = {} # explored nodes, set
+    while  X.difference(N)!= 0:
+        # get smallest edge that includes a node we do not have in X
+        # if heap is empty  break
+        if len(h) == 0 :
+            break
+        (key,value) = h.popitem()
+        (u,v) = (key[0], key[1])
 
-# not most efficient implementation
+        if (u in X  and v not in X) or (v in X and u not in X):
+            if (u in X and v not in X):
+                T[u].append((v, value))
+                T[v] = []
+                X.add(v)
+            else:
+                T[v].append((u, value))
+                T[u] = []
 
-for row in reader: 
-	n1 = int(row[0])
-	n2 = int(row[1])
-	cost = int(row[2])
-	if G.get(n1)==None:
-		G[n1] = [];
-	G[n1].append((n2,cost))
+                X.add(u)
+            # restore heap
+            for item in tmp_h:
+                h[item[0]] = item[1]
+            tmp_h = []
+        else:
+            tmp_h.append((key, value))
+    # now add the weight of all edges in T
+    cost = 0
+    for k in T.keys():
+        for item in T[k]:
+            cost = item[1] + cost
 
-	if G.get(n2) == None:
-		G[n2] = [];
-	G[n2].append((n1,cost))
+    #print T
+    return cost
 
+def main():
+    f = open(sys.argv[1])
+    # first line is nodes and edges
+    line = f.readline()
+    (nodes, edges) = line.split()
 
-#now MST
+    # all nodes
+    N = set()
+    G  = {}
+    for l in range(int(edges)):
+        items = f.readline().split()
+        items = map(int, items)
+        N.add(items[0])
+        N.add(items[1])
+        if G.get(items[0]) is None:
+            G[items[0]] = []
+        # do we need the graph?
+        G[items[0]].append((items[1], items[2]))
+        # we need the heap, it is a global variable
+        h[(items[0],items[1])] = items[2]
 
-size = len(G)
+    start = int(f.readline())
+    #print G
+    print mst(N, start)
 
-print "G -----";
-#print G
-
-# we have to start somewhere, starting at node 1
-X[1] = [];# using a hashmap for lookups
-	      # not sure if you can do lookups in a set
-
-
-node = 1
-MST = 0
-while size > len(X): 	
-	edges = G[node]
-	print"X---"
-	print X
-
-	print "edges"
-	print edges;
-
-	# this heap will contain only edges
-	# that do not go into nodes in X
-	h = getHeapLowerCostEdge(X,G);
-	# if heap is empty we have reached the end or a point where
-	# we need to pick another random node
-	if len(h) <1:
-		if size-1 == len(X):
-			break
-	
-	#elements have been pushed into the heap like this: hp.heappush(h,(cost,node))
-	lowest = hp.heappop(h)
-	newNode = lowest[1]
-	MST = MST+lowest[0]
-
-
-	X[newNode] = []; # using a hashmap for lokups
-	node = newNode
-
-print"X-----";
-print X
-print MST
-
-
-
-
-
-
+if __name__=="__main__":
+    main();
