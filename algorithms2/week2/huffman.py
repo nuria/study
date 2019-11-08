@@ -97,8 +97,8 @@ if __name__== "__main__":
 
 
     h = heapdict.heapdict()
-    # we enter the chars on teh heap on the order they appear
-    # on the incoming string to break ties (?), from hacker rank
+    # we enter the chars on the heap on the order they appear
+    # on the incoming string to break ties (?), this is the guideline from hacker rank problem
     for f in reversed(freq):
         n = Node(f[1], f[0], True)
         h[n] = n.prob
