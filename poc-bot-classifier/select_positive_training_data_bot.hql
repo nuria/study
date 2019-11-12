@@ -26,7 +26,7 @@ select
 
 from wmf.webrequest 
 where agent_type="spider"
-and year=2019 and month=9 and day=1
+and year=2019 and month=10 and day=16
 and is_pageview=1 ;
 
 
@@ -42,7 +42,7 @@ drop table if exists classifier_training_data_bot_sorted;
     from classifier_training_data_labeled_bot as A 
     order by A.sessionid,ts limit 10000000 ;
 
--- we need data of equal size, just get 100000 sessions
+-- there is a lot of data, just get 100000 sessions
 SET hive.groupby.orderby.position.alias=false
 create table distinct_sessions_bot
 as
@@ -52,11 +52,12 @@ as
 create table classifier_training_data_bot_sorted 
 as
     select * from classifier_training_data_bot_sorted_tmp b
-    where b.sessionId in (select sessionId from distinct_sessions_bot where c >10) 
+    where b.sessionId in (select sessionId from nuria.distinct_sessions_bot where c >10) 
     order by b.sessionId,ts limit 10000000;
 
 drop table distinct_sessions_bot;
 drop table classifier_training_data_bot_sorted_tmp;
+drop table classifier_training_data_labeled_bot;
 
 
 
