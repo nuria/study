@@ -29,7 +29,7 @@ select
     agent_type
 
 from wmf.webrequest
-where year=2019 and month=09 and day=01
+where year=2019 and month=10 and day=16
 and is_pageview=1 ;
 
 
