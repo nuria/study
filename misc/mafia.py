@@ -43,17 +43,25 @@ def build_org_chart(employee_manager_pairs):
     
     # READING DATA
     # o(N) if N number of pairs
-    # push o(M) if M maximun nuimber of employees
+    # push o(M) if M maximun number of employees
     for p in pairs:
         employee = p['employee']
         manager = p['manager']
+        
 
-        if G.get(manager) is None:
+        if manager and G.get(manager) is None:
             G[manager] = []
-        if root is None and manager =="":
-                root = employee
-        else:        
+        elif not manager :
+            # root
+            root = employee
+            if G.get(root) is None:
+                G[root] = []
+       
+        if manager and employee:
             G[manager].append(employee)
+
+    if root is None:
+        raise InputError('no root')
 
     # SORTING DATA
     # we have all in a graph but it is not sorted alphabetically
@@ -64,28 +72,24 @@ def build_org_chart(employee_manager_pairs):
     # PRINTING DATA
     # now printing starting with root node
     queue = []
-    queue.append(root)
-    _indent = 0  
+    queue.append((root,0))
     
     visited = {}
 
     output = ''
 
     while (len(queue)> 0):
-        node = queue.pop()
+        (node, _indent)  = queue.pop()
         if visited.get(node) is not None:
             # mmm circular reference
             raise InputError('circular reference')
         visited[node] = 1
-        output  += indent(0)
-        output += root
+        output  += indent(_indent)
+        output += node
         output += "\n"
-        if len(G[node]) > 0:
+        if G.get(node) is not None:
             for n in G[node]:
-                queue.append(n)
-            _indent +=1
-        else:
-            _indent = indent -1
+                queue.append((n, _indent + 1))
 
 
     return output
@@ -259,6 +263,8 @@ import unittest
 class Testing(unittest.TestCase):
 
     def test_build_org_chart(self):
+        print output.strip()
+        print build_org_chart(org_data)
         assert build_org_chart(org_data) == output.strip()
 
     def test_build_org_chart_no_top_level(self):
