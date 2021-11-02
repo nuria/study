@@ -1,0 +1,50 @@
+# for autocomplte
+autoload -Uz compinit && compinit
+export NVM_DIR="$HOME/.nvm"
+ [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh" # This loads nvm
+ [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm" # This loads nvm bash_completion
+
+export PATH="/usr/local/opt/postgresql@11/bin:$PATH"
+
+nvm install 14.16.1
+
+export PATH="$HOME/outschool/terraform/bin:$PATH"
+
+
+set completion-ignore-case on
+set show-all-if-ambiguous on
+
+
+export AWS_SESSION_TOKEN_TTL=18h
+
+export AWS_VAULT_KEYCHAIN_NAME=login
+
+a(){
+  __aws-vault outschool "$@"
+}
+apg() {
+  __aws-vault playground "$@"
+}
+__aws-vault() {
+  local profile="$1"
+  local awsvars=(AWS_VAULT AWS_DEFAULT_REGION AWS_REGION AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_SECURITY_TOKEN AWS_SESSION_EXPIRATION)
+  shift
+  if [[ $# -gt 0 ]]; then
+    (
+      unset "${awsvars[@]}"
+      aws-vault exec "$profile" -- "$@"
+    )
+    return $?
+  fi
+
+  unset "${awsvars[@]}"
+  eval "$(aws-vault exec "$profile" -- jq -nr --arg awsvars "${awsvars[*]}" '
+   env | to_entries[]
+   | select( [.key]|inside($awsvars|split(" ")) )
+   | "export \(.key)=\(.value)"')"
+}
+
+
+
+
+#TAB: menu-complete
