@@ -2,7 +2,7 @@
 
 import sys
 
-lines = open('./out.txt')
+lines = open(sys.argv[1])
 
 lines = map(lambda x: int(x), lines)
 
