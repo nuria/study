@@ -4,52 +4,45 @@ import sys
 
 
 
+def  in_order(left, right):
 
+    print "left: {0}, right:{1}".format(left, right)
 
-def  in_order(left, right, next_left=None, next_right=None):
-    
     # two ints
-    if not isinstance(left, list) and not isinstance(right,list): 
+    if type(left) ==int  and type(right)==int: 
         # integer comparison
         if left > right:
-            return False
+            return -1
+        elif left < right:
+            return 1
         else:
-            return in_order(next_left, next_right)
-    
+            return 0
+
+
     # mixed case
-    if not isinstance(left, list) and isinstance(right, list):
+    if type(left)==int and not type(right)==int:
         # left is an integer
-        return in_order(eval("["+str(left)+"]"), right, next_left, next_right)
+        return in_order([left], right)
 
-    elif (isinstance(left, list) and not isinstance(right, list)):
-        return in_order(left, eval("["+str(right)+"]"), next_left, next_right)
+    elif not type(left)==int and type(right)==int:
+        return in_order(left, [right])
 
-    # list case 
-    if len(left) > len(right):
-        # no need to check elements left list is bigger than right
-        # so bad order
-        return False
-    elif len(left) == len(right):
-        if len(left) >0:
-            # both lists are at least of length 1
-            l = left.pop(0)
-            r = right.pop(0)
-            
-            return in_order(l, r,left, right)
-        else:
-            # empty lists
-            return True
+    for l, r in zip(left, right):
+        if in_order(l,r)  < 0:
+            return -1
+        elif in_order(l,r) > 0:
+            return 1
+
+
+    if len(left) < len(right):
+        return 1
+    elif len(left) > len(right):
+        return -1
     else:
-        # left < right
-        # good order , keep on checking
-        if len(left) > 0:
-            
-            l = left.pop(0)
-            r = right.pop(0)
-            return in_order(l, r,left, right)
-        else:
-            # left side run out of items
-            return True
+        return 0
+
+
+
 
 def main():
     f = open(sys.argv[1])
@@ -68,17 +61,20 @@ def main():
             else:
                 l2 = l
 
-    print pairs
+    #print pairs
 
     order = []
-    
+   
+
+    #print pairs[9][0]
+    #print pairs[9][1]
     # build for each tuple
     for i  in range(0, len(pairs)):
         p = pairs[i]
         left = eval(p[0])
         right =eval(p[1])
 
-        if in_order(left, right):
+        if in_order(left, right) >0:
             order.append(i+1)
 
     print "pairs in order"
