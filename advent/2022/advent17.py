@@ -79,8 +79,8 @@ def print_board(board, height):
     print txt
 
 
-def get_piece_top_height(piece):
-    return max(map(lambda x: x[1], piece))
+def get_piece_top_height(b):
+    return max([y for (x,y) in b])
 
 
 def main():
