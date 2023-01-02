@@ -1,28 +1,46 @@
-#!usr/local/bin
-import math
+#!/usr/bin
+
 import sys
+# from 42 to 24 and -314 to -413
 
-def reverse_no_string(n):
-    # array of numbers
-    digits = []
+# we can parse as a string and reverse but there is a more efficient solution
 
-    r = 0
-    while ((n /10) >1):
-        remainder = n % 10
-        digits.append(remainder)
-        n = n/10
+# You can represent the number in terms of powers of 10 in an array like
+# [10, 100, 1000] or [1,1,1]
+# do we start at teh highest or smallest power 
+# make sense to start small and increase 
 
-    digits.append(n)
-    print digits
+def main():
 
-    l = len(digits)
+    _input = int(sys.argv[1])
 
-    for d in digits:
-        r = r + math.pow(10, l-1) * d
-        l = l -1
-    return r
+    if abs(_input) < 10:
+        print  _input
+    sign = 1
+
+    if _input < 0:
+        sign = -1
+
+    _input = abs(_input)
+
+    # we store digits here
+    tmp =[]
+    _output = 0
+
+    while _input !=0: # 413
+        
+        c = _input/10 #  413/10 = 41 / 41/10 = 4
+        r = _input % 10 # 413 % 10 = 3  /41 % 10 = 1
+        # integer division 
+        # so
+        _input = c # 41
+        tmp.append(r) #[3]
+
+        _output = (_output * 10) + r # 0*1 + 3 / 3 *10 + 1
+
+    print _output * sign
+        
 
 
-if __name__=="__main__":
-    n = int(sys.argv[1])
-    print reverse_no_string(n)
+if __name__ =="__main__":
+    main()
