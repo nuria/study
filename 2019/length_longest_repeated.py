@@ -17,53 +17,37 @@
 // A -> 0
 // AA -> 1
 // AB -> 0
-
-
 """
-
-def computeRepetitions(s):
-
-    # dictionary
-    # A ->2
-    # AB => 2
-    # ABC =>2
-    # ABCD =>0
-    # ABCDE => 0
-
-    # generate all possible substrings of string
-
-    cache = []
-
-    for i in range(0, len(s)):
-        for j in range(i+1, len(s) + 1 ):
-            cache.append(s[i:j])
-
-    number_of_ocurrences = {}
-
-    for c in cache:
-        if number_of_ocurrences.get(c) is None:
-            number_of_ocurrences[c] = 1
-        else:
-            number_of_ocurrences[c] = number_of_ocurrences[c] + 1
-
-    # look for max length if repeated
-    longest = 0
-    chars = ''
-    for k in number_of_ocurrences.keys():
-        if  number_of_ocurrences[k] > 1 and len(k) >= len (chars):
-            longest  = len(k)
-            chars = k
-
-    return (chars, longest)
-
-if __name__ == "__main__":
-    print computeRepetitions("AAAA")
-    print computeRepetitions("Oh toil toil toil trouble")
+import sys
 
 
 
+def main():
+    
+    s =  sys.argv[1]
+    print "looking for matches for {0}".format(s)
+    window_lengths= [i for i in reversed(range(1, len(s)))]
+    #print window_lengths 
+    
+    # slide window on original string starting with largest window
+
+    for l in window_lengths:
+        i = 0
+        while i + l < len(s):
+            w = s[i:i+l]
+            # now  compare this with original string and see if there is more than 1 match
+            match = 0
+            for k in range(0, len(s)):
+                #print "comparing: {0} and {1}".format(w, s[k:k+l])
+                if k+l <=len(s) and w == s[k:k +l]:
+                    match = match + 1
+                if match > 1:
+                    print " {0} matches for string : {1}".format(match, w)
+                    # we are going in reverse order, 1st match found is the longest
+                    return 
+            i = i +1
 
 
-
-
+if __name__=="__main__":
+    main()
 
