@@ -5,7 +5,7 @@ import collections
 
 class node():
     # label, value are just  to print them nicely
-    def __init__(self, label, value,  left=None, right=None):
+    def __init__(self, label, value=0,  left=None, right=None):
         self.right = right
         self.left = left
         # it is teh label what is unique
@@ -14,6 +14,11 @@ class node():
     def __repr__(self):
         return "{0}, {1}".format(self.label, self.value)
         
+    def set_right(self,node):
+        self.right = node
+
+    def set_left(self, node):
+        self.left = node
 
 
 def lca_helper(tree, n1, n2):
@@ -52,6 +57,96 @@ def postorder(node, path):
     
     return nodes
 
+# left -> root-> right
+# o(n) time complexity
+# o(h) space due to stack height
+def inorder(node, path):
+    if node.left is not None:
+        inorder(node.left, path)
+    path.append(node.label)
+
+    if node.right is not None:
+        inorder(node.right, path)
+
+    return  path
+
+# iterative inorder left->root->right
+# o(n) time and o(h) space 
+def i_inorder(node, path):
+    visited = {}
+    # LIFO
+    q = []
+    q.append(node)
+    visited[node]=1 
+    while len(q) > 0:
+        node = q[-1]
+        if node.left is not None and visited.get(node.left) is None:
+            q.append(node.left)
+            visited[node.left] = 1
+        else:
+            path.append(node.label)
+            q.pop()
+            if node.right is not None and visited.get(node.right) is None:
+                visited[node.right] =1
+                q.append(node.right)
+    return path
+
+# root-left-right
+def preorder(node, path):
+    
+    path.append(node.label)
+    if node.left is not None:
+        preorder(node.left, path)
+    if node.right is not None:
+        preorder(node.right, path)
+
+    return path
+
+# builds tree with preorder and inorder transversals 
+def build_tree(P,I):
+
+   
+    # we need to figure out what is left 
+    # and what is right and recurse
+    # P[0] is root
+    
+    if len(P) < 1:
+        return
+
+    root = P[0]
+    root_node = node(root)
+
+    print "preorder"
+    print P
+    print "inorder"
+    print I
+    
+    print "root: {0}".format(root)
+
+
+    if len(P) == 1:
+        return root_node
+    
+    # now look for root in the inorder 
+    i = 0
+    while  I[i] != root:
+        i = i + 1
+
+    left_i = I[0:i+1]
+    right_i = I[i+1:]
+
+    left_p = P[1:len(left_i)]
+    right_p = P[len(left_i):]
+
+    
+    left_tree = build_tree(left_p,left_i)
+
+    right_tree = build_tree(right_p, right_i)
+
+    root_node.set_right(right_tree)
+    root_node.set_left(left_tree)
+
+    return root_node
 
 
 
@@ -77,8 +172,23 @@ def main():
     #print n 
     print lca
 
+    print "postorder"
     print postorder(root, [])
+    
+    print "inorder" #left->root->right
+    print inorder(root, [])
+    print i_inorder(root, [])
+    I =  inorder(root, [])
+    
+    print "preorder" # root ->left -> right
+    print preorder(root, [])
+    P = preorder(root, [])
 
+    print ">>>>>"
+
+    tree = build_tree(P, I) 
+    # verify this is correct 
+    print preorder(tree, [])
 
 
 if __name__=="__main__":
