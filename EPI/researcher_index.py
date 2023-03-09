@@ -29,6 +29,7 @@ def main():
     _max = 0
     tally = 0
 
+    # this version is o(nlogn) time and o(n) space
     # [6,5,4,4,3,2,1,1,1]
     for n in reversed(l):
         if c.get(n) is None: # 
