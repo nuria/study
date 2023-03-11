@@ -18,34 +18,53 @@ def right_justify_line(words):
     empty_spaces = k - total_chars
     
     if len(words) == 1:
-        return list(words[0]) + [EMPTY] * (k-len(words[0]))
+        return words
     
     if empty_spaces == 1:
         return list(words[0]) + [EMPTY] +  list(words[1])
     
-    if len(words) == 2:
-        line = list(words[0]) + [EMPTY] * empty_spaces + list(words[1])
-        return line
-    # more than two words
+    # more than one space
     separation = empty_spaces/(len(words)-1)
     
     line = []
     
     for w in words[:len(words)-1]:
-        line+= list(w) + [EMPTY] * separation
+        
+        line.append(w)
+        for s in range(0,separation):
+            line.append(EMPTY)
+
 
     if empty_spaces % 2 == 1:
-        line+= [EMPTY]
+        line.append(EMPTY)
     
-    line += list(words[-1])
+    line.append(words[-1])
         
     return line
 
 
+def left_justify_line(words):
+    l = []
+    for w in words[0:-1]:
+        l.append(w)
+        l.append(EMPTY)
 
+    l.append(words[-1])
+    return l
+
+class TestSuite(unittest.TestCase):
+    def test_happy_case(self):
+        words =['aa', 'bb', 'cc']
+        self.assertEqual(right_justify_line(words), ['aa',EMPTY,EMPTY, 'bb',EMPTY, EMPTY, EMPTY,'cc'])
     
+    def test_last_line_left(selft):
+        words =['aa', 'bb']
+        selft.assertEqual(left_justify_line(words), ['aa', EMPTY, 'bb'])
 
-
+    def test_two_words(self):
+        words= ['a', 'b']
+        E = EMPTY
+        self.assertEqual(right_justify_line(words), ['a',E,E,E,E,E,E,E,E,E,E,'b'])
 
 def main():
     words = ['algodaily','is','awesome','and','you','can','text','justify','all','types','of','text','and','words' ]
@@ -69,42 +88,35 @@ def main():
 
     # if there is only one word we cannot right justify
     # keep track of num_words per line
-    
-    num_words = {}
 
 
     w = 0 
     l = 0
+    num_words_line =[]
+    chars_in_line = 0
     
     while  w < len(words):
         word = words[w]
         # all words need to be less than length of line
-        can_insert = False
         
-        if num_words.get(l) is None:
-            can_insert = True
-            num_words[l] = []
-        else:
-            chars_in_line = sum(map(lambda x:len(x), num_words[l]))
-            min_separating = max(1,len(num_words[l])-1)
+        min_separating = max(1,len(num_words_line)-1)
 
-            if chars_in_line + min_separating + len(word) < k + 1:
-                can_insert = True
-
-        if can_insert:
+        if chars_in_line + min_separating + len(word) < k + 1:
             # increment word
             w = w + 1 
-            num_words[l].append(word)
+            num_words_line.append(word)
+            chars_in_line += len(word)
         else:
             # cannot insert
             # move line index
-            line = right_justify_line(num_words[l])
+            line = right_justify_line(num_words_line)
             paper[l] = line 
             # increment line i and try again
             l = l + 1
-        
+            num_words_line =[] 
+            chars_in_line = 0
     
-    paper[l] = right_justify_line(num_words[l])
+    paper[l] = left_justify_line(num_words_line)
     
     paper = paper[0:l+1]
     
@@ -123,4 +135,4 @@ def main():
 
 if __name__=="__main__":
     main()
-    #unittest.main().result
+    unittest.main().result
