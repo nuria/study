@@ -19,25 +19,23 @@ class Node:
         self.right = right
 
     def pretty_print(self):
-        s = self.label + " "
-        s_left = ''
-        s_right = ''
+        s = "[" +self.label + " "
         if self.left:
-             s_left = self.left.pretty_print()
+             s+= 'left ' +self.left.pretty_print()
         if self.right:
-            s_right = self.right.pretty_print()
+            s += 'right '+self.right.pretty_print()
 
-        return s + s_left + s_right
+        return s +"]"
 
     def __str__(self):
-        return self.label + " " + str(self.value)
+        return self.pretty_print()
 
 # builds a huffman tree from the frequencies
 def huffman(f):
     h = heapdict.heapdict()
     for k in f:
         node = Node(k[0], k[1])
-        h[node] =k[1]
+        h[node] = k[1]
 
     while len(h) >1:
         # get two shortest items
@@ -61,7 +59,8 @@ def huffman(f):
 
 
     build_dict(tree, '')
-
+    
+    print tree
     return d
 
 
