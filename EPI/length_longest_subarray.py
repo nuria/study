@@ -1,8 +1,8 @@
 #!/usr/local/bin
 
 # Find the length of the longest continuous strictly increasing subarray in an integer array
-# with one chnage allowed
-
+# with one change allowed
+# not trivial
 """
 Step 1: We first compute the longest increasing subarray ending at an index for every index in the given array. We store these values in l[].
 Step 2: Then calculate the longest increasing subarray starting at an index for every index in the given array. We store these values in r[].
@@ -18,9 +18,6 @@ def main():
     p = 0
     max_l = 1
     
-    
-
-
 
     # stores longest sequence finishing at index i
     DP = [1 for i in range(0, len(A))]
@@ -29,13 +26,9 @@ def main():
     DP_S = [1 for i in range(0, len(A))]
 
     # counts length of sequence
-    p = 1
     for i in range(1, len(A)):
         if A[i-1] < A[i]:
-            p = p + 1
             DP[i] = DP[i-1] + 1
-        else:
-            p = 1
 
 
     for i in range(len(A)-2, -1, -1):
