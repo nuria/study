@@ -4,8 +4,8 @@ def main():
     # how to xor a bunch of numbers
     l = [1,2,3,4,4,5,6,7] #0 is missing, 4 is duplicated, find both at thesame time
     N = 8
-    # if the sries from 0..n is complete xor is zero
-    # if a number is missing xor is that number
+    # if we compute the xor of the array input and the xor of a complete array from 1 to n
+    # all numbers will cancel out minus the missing one
 
     xor_series  = l[0]
     
