@@ -38,6 +38,7 @@ def main():
     
     print  reverse('a b c d')
     print reverse ('Hello World')
+    print reverse('hola que tal')
 
 class TestSuite(unittest.TestCase):
     def test_happy(self):
