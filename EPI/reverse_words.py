@@ -1,52 +1,48 @@
-#!usr/local/bin/python
-"""
-You are given an array of characters arr that consists
-of sequences of characters separated by space characters.
-Each space-delimited sequence of characters defines a word
-Implement a function reverseWords that reverses
-the order of the words in the array in the most efficient manner.
-"""
+#!/usr/bin
+# reverse words in a sentence -> Hello world -> World Hello
+
+import sys
+import unittest
 
 
-def reverse_words(A):
-    # asuuming two spaces
-    SPACE = "  "
-    # with o(n) space
-    import collections
-    q = collections.deque()
-    w = ''
-    #o (n) time
-    for i in range(0, len(A)):
-        if A[i] == SPACE or i == len(A) -1:
-            if i == len(A) -1:
-                w += A[i]
-            q.append(w)
-            w = ''
-        else:
-            w += A[i]
+def main():
+    # array of words
+    def reverse(w):
+        pass
+        
+        """
+        Hello World
+        
+        
+        treating string like a list of chars
+        this once string is converted to a list is o(n) but no additional space
 
-    # drain
-    # use space in A
+        """
+        p1 = 0
+        p2 = len(w) -1
+        SPACE = ''
+        # brute force solution
+        words = w.split()
+        for i in range(0, len(words)/2):
+            print i
+            top = words[i]
+            end = words[len(words)-i-1]
+            tmp = top
+            words[i] = end
+            words[len(words)-i-1] = tmp
 
-    A = []
-    # o len(words)
-    while(len(q) > 0):
-        w = q.pop()
-        for c in w:
-            A.append(c)
-        A.append(SPACE)
-    print A
+        print words
+            
+            
 
-if __name__ == "__main__":
+    
+    print  reverse('a b c d')
+    print reverse ('Hello World')
 
-    _input = [ 'p', 'e', 'r', 'f', 'e', 'c', 't', '  ',
-                'm', 'a', 'k', 'e', 's', '  ',
-                'p', 'r', 'a', 'c', 't', 'i', 'c', 'e' ]
+class TestSuite(unittest.TestCase):
+    def test_happy(self):
+        pass
 
-
-    _output = [ 'p', 'r', 'a', 'c', 't', 'i', 'c', 'e', '  ',
-          'm', 'a', 'k', 'e', 's', '  ',
-          'p', 'e', 'r', 'f', 'e', 'c', 't' ]
-
-    print reverse_words(_input)
-
+if __name__=="__main__":
+    main()
+    unittest.main().result
