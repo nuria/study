@@ -1,0 +1,6 @@
+Udacity provides dataset publicy available. See:
+“s3n://udacity-dsnd/sparkify/sparkify_event_data.json”
+
+This can be downloaded via http with:
+curl http://udacity-dsnd.s3.amazonaws.com/sparkify/sparkify_event_data.json
+
