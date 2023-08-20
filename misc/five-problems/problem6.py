@@ -18,43 +18,51 @@ def main():
 
     make sure it works for arrays that are large enough
 
-    Call like: python problem6.py 2 '1 2 3 4'
+    Call like: python problem6.py 2 '1,2,3,4'
     '''
+    target = int(sys.argv[1])
+    A = eval(sys.argv[2])
 
-    def find_target(t, l, left_index):
-        # binary search, we need to keep track of indexes,
-        # just remember left and right index of the sublist in which we are looking
+    # let's use binary search to start 
+    # first we need to stablish if item is on array
+    
+    U = len(A) -1
+    L = 0
 
-        size = len(l)
-        if size == 1:
-            if t == l[0]:
-                # base case
-                print str(left_index)
-            else:
-                if l[0] < t:
-                    print left_index + 1
+    # let's get the ones out of bounds
+    if target > A[-1]:
+        print(len(A))
+        return
+    if target < A[0]:
+        print ("0")
+        return
+
+    while (U > L):
+        m = L + int((U-L)/2)
+        print("U:{0} L:{1}".format(U,L))
+
+        if target > A[m]:
+            # move right
+            # look ahead and see see if the next value is out of bounds
+            if m < len(A)-1:
+                if target < A[m+1]:
+                    print(m)
+                    return
                 else:
-                    if left_index != 0:
-                        print left_index - 1
-                    else:
-                        print 0
+                    L = m
+        elif target < A[m]:
+            if m > 0:
+                if target > A[m-1]:
+                    print(m)
+                    return
+            else:
+                U = m
         else:
-            # split in two
-            middle = int(size/2)
-            if l[middle] == t:
-                print left_index + middle
-            elif l[middle] > t:
-                left = l[left_index:middle]
-                find_target(t, left, left_index)
-            elif l[middle] < t:
-                    right = l[middle:size]
-                    find_target(t, right, left_index + middle)
-
-    target = sys.argv[1]
-    l = sys.argv[2].split()
-
-    find_target(target, l, 0)
+            print(m)
+            return
 
 
-if __name__ == "__main__":
+
+
+if __name__=="__main__":
     main()
