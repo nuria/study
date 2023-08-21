@@ -25,7 +25,29 @@ def main():
 
     print (answer)
 
+    # let's use a queue 
+    # we can reverse an use a normal list
+    data = reversed(data)
+
+    answer2 = [0] * len(data)
+    # queue where we temporaryly store looked up temps
+    tmp = []
     
+    i = 0
+    while len(l) > 0:
+        # get 1st element 
+        t = data.pop()
+           
+        while (data[-1] < t):
+            tmp.append(data.pop())
+
+        data[i] = len(tmp)
+        # now restore elements
+        while(len(tmp) > 0):
+            data.append(tmp.pop())
+
+
+        i = i + 1 
 
 
 
