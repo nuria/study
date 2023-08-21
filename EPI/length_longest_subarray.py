@@ -4,8 +4,8 @@
 # with one change allowed
 # not trivial
 """
-Step 1: We first compute the longest increasing subarray ending at an index for every index in the given array. We store these values in l[].
-Step 2: Then calculate the longest increasing subarray starting at an index for every index in the given array. We store these values in r[].
+Step 1: We first compute the longest increasing subarray ending at an index for every index in the given array. We store these values in left[].
+Step 2: Then calculate the longest increasing subarray starting at an index for every index in the given array. We store these values in right[].
 Step 3: Update the answer ans = max ( ans, l[i-1] + r[i+1] + 1), when a[i-1] + 1 < a[i+1].
 """
 
