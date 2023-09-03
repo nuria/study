@@ -38,7 +38,8 @@ def main():
     for i  in range(1, len(data)):
         value = data[stack[-1]]
         while data[i] > value and len(stack) >0:
-            answer2[stack.pop()] = i
+            _index = stack.pop()
+            answer2[_index] = i -_index
 
         # current value is smaller than the ones we are keeping track in the stack
         stack.append(i)
