@@ -20,7 +20,7 @@ def main():
     # we move other elements forward k steps
     # this is o(n) on time by o(k) on space
     
-    for i in range(0, l-k):
+    for i in range(l-1-k, -1 , -1):
         A[i+k] = A[i]
 
 
