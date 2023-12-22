@@ -30,34 +30,28 @@ def _inorder(node):
 
 
 def iterative_inorder(root):
-    # lifo
-    # pop from end
-    parents = collections.deque()
-
     inorder = []
+    in_process = [(root,False)]
 
-    node = root
+    while (len(in_process) > 0 ):
+        (node, processed ) = in_process.pop()
+        if not processed:
+            if node.right is not None:
+                in_process.append((node.right,False))
+            
+            in_process.append((node, True))
 
-    parents.append(root)
-
-    while (node is not None):
-        print inorder
-
-        # traverse.left all the way
-        if node.left is not None and node.left not in parents and node.left not in inorder:
-            parents.append(node)
-            node = node.left
-        elif node.left is None and node.right is None:
-            inorder.append(node)
-            node = parents.pop()
-        elif node.right is not None and node not in inorder:
-            inorder.append(node)
-            node = node.right
-        elif node.left is not None and node.left in inorder:
-            inorder.append(node)
-            node = parents.pop()
+            if node.left is not None:
+                in_process.append((node.left, False))
+            
+        
+        else:
+            inorder.append(node.value)
 
     return inorder
+
+
+
 
 def constant_inorder(node):
     prior = None
@@ -65,8 +59,6 @@ def constant_inorder(node):
 
 
     while (node is not None):
-        print node
-        print prior
         if prior == node.parent:
             # this is a right node
             if node.left:
@@ -146,7 +138,7 @@ if __name__ == "__main__":
 
     _inorder(root)
 
-    print queue
-#    print iterative_inorder(root)
-    print constant_inorder(root)
+    print (queue)
+    print (iterative_inorder(root))
+    #print (constant_inorder(root))
 
