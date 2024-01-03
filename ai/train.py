@@ -45,8 +45,12 @@ itos = {i:ch for (i,ch) in enumerate(chars)}
 
 # encode takes a string and outputs integers
 # decode take integers, outputs a string
-encode = lambda x: [stoi[c] for c in x]
+
+encode = lambda x: [ stoi[c] for c in x]
+
+# decode takes a list
 decode = lambda x: "".join([itos[n] for n in x])
+
 
 print(encode('you'))
 print (decode(encode('you')))
@@ -136,16 +140,13 @@ class BigramLanguageModel(nn.Module):
         self.token_embeding_table = nn.Embedding(vocab_size, vocab_size)
 
 
-    def  forward(self,idx, targets):
+    def  forward(self,idx, targets=None):
         # idx and targets are both (B,T) tensors of integers, B = batch size (for now 4 , number of rows)
+        # and T is the context window (8, also called time)
         # when forward is called with say index 24 that corresponds to char 24
-        # teh 24th row will be populated?
-        # this is a tensor of 
-        # batch (4), 
-        # time (8) => this is the context_size? ?
+        # the 24th row will be populated?
         # channel (vocab_size, the embeding dimension, 65)
-        # ??
-        # this returns log probabilities of odds for all tokens on vocab, taht much is clear 
+        # this returns log probabilities of odds for all tokens on vocab 
         # (B,T,C)
         logits = self.token_embeding_table(idx) 
         
@@ -157,15 +158,60 @@ class BigramLanguageModel(nn.Module):
 
         # we need to reshape logits so we can use cross_entropy as pytorch expects outputs in a different way
         B, T, C = logits.shape
-        # change into 2 dimension array
-        logits = logits.view(B*T, C)
-        targets = targets.view(B*T)
+        
+        #print("logits shape: {0}". format(logits.shape, logits[0][0]))
+                
+        #print("logits element (0,0) every element of matrix is a vector size 65: {0}". format(logits[0][0]))
 
 
-        loss = F.cross_entropy(logits, targets)
-
-
+        if targets is None:
+            loss = None
+        else:
+            
+            targets = targets.view(B*T)
+            logits = logits.view(B*T, C)
+            targets = targets.view(B*T)
+            loss = F.cross_entropy(logits, targets)
+            # change into 2 dimensions = matrix
+                    
         return logits, loss
+
+        """
+        idx: current context of some characters in some batch (B, T) matrix 
+        generate will extend this (B, T) to be (B, T+1), (B, T+2)... 
+        TODO: clarify
+
+        """
+    def generate(self, idx, max_new_tokens):
+        # idx is a (B,T) array of indexes in the current context
+        # i think t is in [1..8] range 
+        for _ in range(max_new_tokens):
+            # get predictions
+            # (we do not use loss) logits was a (B, T, C) tensor => (4, 8, 65)
+            # each element is a vector with 65 dimensions
+            # this below is calling the forward function
+            logits, loss = self(idx)
+            # focus only on the last time step
+            # last time step for every batch?
+            # ya, last time step is the prediction for what comes next
+            logits = logits[:, -1, :]  # becomes B, C [4, 65]
+
+            # apply softmax to get probabilities
+            probs = F.softmax(logits, dim=1) # B,C
+            #print(probs[0,0])
+            
+            #sample from the distribution and get 1 sample
+            # so in each of the batch dimensions we are going to have 1 prediction
+            idx_next = torch.multinomial(probs, num_samples=1) # B, 1
+
+            #append sampled index (this is a ventor of probabilities)the running sequence
+            # whatever is predicted (idx_next) is concatenated on top of previous idx
+            # so if initial matrix idx was (B, T) => this one will be (B, T+1)
+            # i think here t is [1..8]
+            idx = torch.cat((idx, idx_next), dim=1)
+
+        return idx
+
 
 
 m = BigramLanguageModel(vocab_size)
@@ -174,6 +220,13 @@ m = BigramLanguageModel(vocab_size)
 (logits, loss) = m(xb, yb)
 print(logits.shape)
 print ("loss : {0}".format(loss))
+# this is how we kick off the generation
+# we have a matrix like [0]
+# 0 represents a new line in our vocabulary
+
+idx = torch.zeros((1,1), dtype=torch.long)
+# because generate works in batches we want to get one batch alone
+print(decode(m.generate(idx, max_new_tokens =100)[0].tolist()));
 
 
 
