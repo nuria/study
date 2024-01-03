@@ -38,8 +38,10 @@ def main():
     # sum prior rest 
     sum_prior_r = 0
 
+    # o(N-1) max size of window is N-1 where N = len(A) 
     for k in range(1, len(A)):
 
+        # o(N) for smallest window
         for i in range(0, len(A)-k):
             if i ==0:
                 w = sum(A[0:k])
@@ -56,8 +58,18 @@ def main():
             # this can be used to speed up the sums
             sum_prior_w = w
             sum_prior_r = r
-            
+
+    # solution is o(n2)
     print(result)
+
+
+    # can we do better than o(n2)
+    # yes, with some DP solution where you only get the indexes
+
+    # how to initialize
+
+
+
 
 if __name__=="__main__":
     main()
