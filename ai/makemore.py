@@ -3,6 +3,7 @@ import torch
 from functools import reduce 
 import matplotlib.pyplot as plt
 import math
+import torch.nn.functional as F 
 
 # makemore video: https://www.youtube.com/watch?v=PaCmpygFfXo
 # need to look into this a bit before jumping into the transformer arch
@@ -195,10 +196,12 @@ avg_nll = nll/n
 print (f'negative log likehood: {nll:.4f}, normalized : {avg_nll:.4f}')
 
 ######## now let's move this problem into the NN framework ##############
-# it is still a bigram level NN
+# it is still a bigram level NN , one layer followed by a softmax function
+
 # upon receiving a char 
 # the NN will run it through some weights and it 
 # will output the probability distribution of the next char in the sequence
+# we will just have one layer
 # we will still be using the log likehood to estimate the loss
 # since we have the loss function we are going to minimize it using gradient based optimization
 # (we are tunning paarmeters via minimizing the loss function)
@@ -210,15 +213,199 @@ bigrams = []
 
 xs, ys = [], [] 
 
-for w in words:
+for w in words[:1]:
     chrs = [SPECIAL_TOKEN] + list(w) + [SPECIAL_TOKEN]
     for (ch1, ch2) in zip(chrs, chrs[1:]):
         int1 = stoi[ch1]
         int2 = stoi[ch2]
+        print(f'{ch1} {ch2}')
         xs.append(int1)
         ys.append(int2)
 
 # we will create tensors out of these lists
 xs = torch.tensor(xs)
 ys = torch.tensor(ys)
+
+# these are  an integer vector whose items represent chars on our map
+"""
+if we use word 'emma'
+. e
+e m
+m m
+m a
+a .
+tensor([ 0,  8, 21, 21,  7])
+tensor([ 8, 21, 21,  7,  0])
+But to be able to use these values on the NN
+we are going to use 1 hot encoding
+you can transform a tendsor made our of integers into a 2d matrix with 1 hot encoding
+not hot: tensor([ 0, 12,  3,  3, 23])
+tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+"""
+
+"""
+nlls = torch.zeros(5)
+
+step by step of how negative log likehood is calculated
+
+for i in range(5):
+    x =  xs[i].item() # input
+    y  = ys[i].item() # label (next char in bigram sequence)
+    
+    # one hot encoded y label coincides with char numbers
+    
+
+    xs = tensor([ 0,  8, 21, 21,  7])
+    ys tensor([ 8, 21, 21,  7,  0])
+
+    because of 1 hot encoding xs is rows: 5 columns: 27 and  same for ys
+    to see prediction of 1st item and compute loss we want to look at prediction for position 8 on row 0 , 21 for next item, position 21 on row 1 etc
+    p = prob[i,y]
+    logp = torch.log(p)
+    nll = -logp
+    nlls[i] = nll
+
+print ('averaae negative log likehood, 1 sample, random weights (this num should be very small)', nlls.mean().item())
+"""
+#plt.imshow(xenc)
+
+
+print(ys)
+
+
+# we are going to add our 1st neuron
+# which will do a dot product y = wx+b 
+# normal distribution of ramdom numbers, so mostly arround zero
+# we want the dimensionality of output to match dimensionality of input
+# so output needs to have also 27 dimensions
+# a (1, 27) will be 1 neuron in deep learning speak +> colum matrix with 27 values
+# a (27,27) matrix is what we end up using
+
+
+# try to use all words now, which means taht there is an explosion on row dimension
+
+xs = []
+ys = []
+
+for w in words:
+    chrs = [SPECIAL_TOKEN] + list(w) + [SPECIAL_TOKEN]
+    for (ch1, ch2) in zip(chrs, chrs[1:]):
+        int1 = stoi[ch1]
+        int2 = stoi[ch2]
+        #print(f'{ch1} {ch2}')
+        xs.append(int1)
+        ys.append(int2)
+
+# we will create tensors out of these lists
+xs = torch.tensor(xs)
+ys = torch.tensor(ys)
+
+nums = xs.nelement()
+print ("number of samples:", nums)
+
+g = torch.Generator().manual_seed(2147483647)
+
+# teh requires grad is needed for later backpropagate and adjust weights, initial guess is random
+W = torch.rand((27,27), generator=g, requires_grad=True)
+
+######## this is called a forward pass ##########
+
+# despite these being one hot encoding we want floats so we can get floats at the end
+xenc = F.one_hot(xs, num_classes=27).float()
+yenc = F.one_hot(ys, num_classes=27).float()
+
+# we wnat to get a probability distribution, 
+# for that we interpret the output of the NN as log (counts) 
+# and from that count we get the distribution
+# we would expect that with this methodology of random initialization
+# we will converge to teh loss we had on our counting approach
+# so GRADIENT BASED learning is giving us a result that is equivalent to the
+# count and normalize one
+
+
+# this is gradient descent
+# it is going to give us a similar loss to probabilistic setup but it is more flexible
+# cause prob setup is hard to expand if insteads of bigrams we are keeping the prior ten chars
+
+for k in range(100):
+    
+    ######## Forward pass
+    # the wya we calculate the logits will be more complex in a more complex neural net 
+    # but fundamentally the idea is the same
+
+    xenc = F.one_hot(xs, num_classes=27).float()
+    logits = xenc @ W #logcount prediction with initial random guess
+
+    # softmax , goes from counts to prob
+    counts = logits.exp()
+    prob = counts/counts.sum(1, keepdims= True)
+
+
+    # now, while we started with a random guess we can 
+    # get better guesses by minimizing the loss function 
+
+
+    # torch.arange(5) is [0,1,2,3,4]
+
+    loss = -prob[torch.arange(nums), ys].log().mean()
+
+    # this loss is a matrix rows 5 columns 27
+    print(loss.item())
+
+    # now we want to improve weights
+    ####### Backward pass
+    W.grad = None # reset gradients to zero
+
+    # this is pretty magical
+    # pytorch  has build a computational graph from the forward pass above
+    # and now reverses the operations such W.grad now is full 
+    loss.backward()
+
+    #print(W.grad)
+
+    # now update the weights , where does this -0.1 come from?
+    # it is called the learning rate
+    # you can move the -0.1 while looking at loss 
+    # W.data  += -0.1 * W.grad
+    
+    W.data  += -10 * W.grad
+
+
+
+# now let's sample from this NN
+print('sampling from NN')
+
+for i in range(5):
+    out = []
+    ix = 0
+
+    while True:
+        #BEFORE 
+        #p = P[ix]
+    
+        xenc = F.one_hot(torch.tensor([ix]), num_classes=27).float()
+        # just a linear layer we have tuned up weights above
+        #  using loss and backpropagation
+        logits = xenc @ W 
+
+        # softmax , goes from counts to prob
+        counts = logits.exp()
+        p = counts/counts.sum(1, keepdims= True)
+        
+        
+        ix = torch.multinomial(p, num_samples=1, replacement=True, generator=g).item()
+        out.append(itos[ix])
+        
+        if ix == 0:
+            break;
+        
+
+    print ("".join(out))
+
+
+
 
