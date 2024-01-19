@@ -1,50 +1,82 @@
-#!usr/local/bin
+#!/usr/local/bin
 
-# non attacking placements of n queens on
-# an n x n dashboard
-result = []
-# for possibilities
-P = [0,1,2,3]
+import sys
 
-import copy
+"""
+sol for 4: 
+[[2,4,1,3], 
+ [3,1,4,2]]
 
-def queens(n):
-
-    # the representation is a strange one, we just represent columns
-    # rather than 2 dimensions so we turn the problem in one that
-    # is unidimensional
-
-    def is_diagonal(i, j):
-
-        abs(i-j)
+ sol for 6:
+ [[2,4,6,1,3,5],
+ [3,6,2,5,1,4],
+ [4,1,5,2,6,3],
+ [5,3,1,6,4,2]]
+"""
 
 
-    # we represent [0, -, -, -, -] a queen in the column
-    # number 0
-    # we cannot add another column that is zero
-    # we keep on trying other numbers
+def main():
 
-    def queens_helper(n, sol = list()):
-        # reducing to add items to a set with a set of constrains
-        if len(sol) == n:
-            return sol
-
-        print sol
-
-        for item in P:
-            if len(sol) > 0:
-                if item not in sol and not is_diagonal(sol[:][-1], item):
-                    s = sol[:]
-                    s.append(item)
-                    queens_helper(n, s)
-            else:
-                s = sol[:]
-                s.append(item)
-                queens_helper(n, s)
+    # the representation of result 
+    # is important, we are representing rows with the position in each row 
+    result =[] 
 
 
-    return queens_helper(n)
+    n = int(sys.argv[1])
 
-if __name__ =="__main__":
-    print queens(4)
+    def place(n, p=[]):
+        
+        #print(f'positons:{p}')
 
+        if n == 1:
+            return [1]
+        if n == len(p):
+            print(p)
+            return p
+
+        if len(p) < 1:
+            for i in range(1,n+1):
+                place(n, [i])
+
+        else:
+
+            # test if a newly placed queen will conflict with the ones placed prior
+            for i in range(1, n+1):
+                # to figure out how to describe a diagonal is a bit hard
+                # the key is to realize that row-column is constant 
+                # we describe each diagonal by its invariant so row-column = 0 in the diagonals in the middle
+                # of the square, the (1,10, (2,2)... 
+                # len(p)+1 is the column
+                # i is the row
+
+                # once a row is taken we cannot place a queen in its row and column                
+                if i not in p:
+                    r = i
+                    c = len(p) + 1
+                    
+                    #print (f'trying {i}')
+                    
+                    positiveDiagonals = []
+                    negativeDiagonals = []
+                    for (column,row) in enumerate(p):
+                        column = column + 1
+                        positiveDiagonals.append(row-column)
+                        negativeDiagonals.append(row+column)
+                        
+                    #print(f'{positiveDiagonals} {negativeDiagonals}')
+
+                    if r-c not in positiveDiagonals and r+c not in negativeDiagonals :
+                        
+                        #print (f'apending {i}')
+                        sol = p[:]
+                        sol.append(i)
+                        place(n, sol)
+
+
+    print(place(n, []))
+
+
+
+
+if __name__=="__main__":
+    main()
