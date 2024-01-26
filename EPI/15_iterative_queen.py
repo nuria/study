@@ -84,8 +84,8 @@ def place(n):
         for r in range(100):
             result = []
             # try 10 iterations
-            i = random.randint(0,3)
-            j = random.randint(0,3)
+            i = random.randint(0,n-1)
+            j = random.randint(0,n-1)
 
             result.append(j+1)
             mark_attack(i,j)
@@ -103,7 +103,9 @@ def place(n):
                         result.append(j+1)
                         mark_attack(row,j)
                         break
-            
+           
+            print(result)
+
             if queens_placed > max_queens_placed :
                 max_queens_placed = queens_placed
                 configuration = result[:]

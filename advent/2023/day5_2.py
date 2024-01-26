@@ -21,7 +21,6 @@ def get_destination(data,source):
     destination = None
     for k in data:
         (d, s, r) = k
-        #print ("({0}, {1},{2})".format(d,s,r))
         
         if s<= source and source < s + r:
              if (source-s) < candidate:
@@ -38,7 +37,6 @@ def main():
     data = []
     f = open(sys.argv[1])
     
-    # execute test like python day5 [79, 14, 55,13] 
    
     seeds = [79,14,55,13]
 
@@ -101,31 +99,7 @@ def main():
     print("the seed :{0} , the candidate:{1}".format(i, candidate))
 
 
-class TestCase(unittest.TestCase):
-    def test_happy_ranges(self):
-        """
-        # destination source range
-        50 98 2
-        52 50 48
-        """
-        # destination 98
-        # source 50
-        # range 2
-        # are we modeling this like a graph
-        # easiest to start is to have a hash with key values
-        destinations = [79, 14, 55, 13]
-        
-        data = [(50,98,2),(52,50,48)]
-        
-        self.assertTrue(get_destination(data,99)==51)
-        self.assertTrue(get_destination(data,98)==50)
-
-        self.assertTrue(get_destination(data,53)==55)
-        self.assertTrue(get_destination(data,79)==81)
-
-        self.assertTrue(get_destination(data, 14)==14)
 
 
 if __name__=="__main__":
     main()
-    #unittest.main().result
