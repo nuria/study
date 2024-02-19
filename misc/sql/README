@@ -1,0 +1,1 @@
+execute like psql <file.sql
