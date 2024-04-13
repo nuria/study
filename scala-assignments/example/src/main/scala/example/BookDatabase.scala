@@ -2,7 +2,7 @@ package example
 
 object BookDatabase {
   
-  def main(args:Array[String])= {
+  def _main(args:Array[String]) = {
     val books:Set[Book]= Set(Book(title="Atlas de Madri",authors=List("pepito","juanito")),
         Book(title="Atlas de BCN",authors=List("pepita","juanita")),
         Book(title="Comiditarica",authors=List("lola","lolita")),
@@ -34,8 +34,8 @@ object BookDatabase {
       b1 <- books
       b2 <- books
       if b1.title < b2.title
-      	a1 <- b1.authors
-      	a2 <- b2.authors
+        a1 <- b1.authors
+        a2 <- b2.authors
       if a1==a2
     } yield a1
   }

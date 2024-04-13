@@ -6,7 +6,7 @@ package example
 object Week4Examples {
   
   
-  def main(args:Array[String]){
+  def main(args:Array[String])={
     println(f.apply(7))
     val result = eval(new Sum(new Number(1),new Number(2)))
     println(result);
@@ -95,13 +95,13 @@ object Week4Examples {
   trait PExpr2 {
     
     def peval:Int = this match {
-    	case PNumber2(n) => n
-    	case PSum2(e1,e2) => e1.peval+e2.peval
+      case PNumber2(n) => n
+      case PSum2(e1,e2) => e1.peval+e2.peval
     }
     
      def show:String = this match {
-    	case PNumber2(n) => n.toString();
-    	case PSum2(e1,e2) => e1.toString() +"+"+e2.toString()
+      case PNumber2(n) => n.toString();
+      case PSum2(e1,e2) => e1.toString() +"+"+e2.toString()
     }
   }
   

@@ -3,7 +3,7 @@ import math.abs;
 
 object Week2Examples {
 
-  def main(args:Array[String]){
+  def main(args:Array[String])={
     
    // println(sum((x:Int)=>x,1,3))
    // println(fact(0))

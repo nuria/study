@@ -53,7 +53,7 @@ object Week6Examples {
         word <- wordsForNum(number take split)
         rest<- encode (number drop split)
       } yield(word::rest)
-  	}.toSet
+    }.toSet
   }
   encode("7225247386");
 }

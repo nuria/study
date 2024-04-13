@@ -100,7 +100,7 @@ object Water {
       
       
       val pathSets = from(Set(initialPath),Set(initialState)) //all paths of length 1 that start with initial path, second pass
-    		  								// all paths of length 2 that starts with the path one.. etc
+                          // all paths of length 2 that starts with the path one.. etc
       
       
       def solutions(target:Int):Stream[Path] = {

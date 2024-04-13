@@ -2,7 +2,7 @@ package example
 
 object currying {
 
-  def main(args:Array[String]){
+  def main(args:Array[String])= {
     val even=(a:Int)=>a%2==0;
     val asc = 1::2::3::4::5::Nil;
     
@@ -24,10 +24,10 @@ object currying {
     
     list match {
       case head::tail=>if (filter(head)){
-    	  					head::recurse(tail)
-      					}else {
-      						process(filter)(tail)//recurse(tail) also works
-      					}
+                  head::recurse(tail)
+                }else {
+                  process(filter)(tail)//recurse(tail) also works
+                }
       case Nil=>Nil
      
     }

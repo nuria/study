@@ -54,19 +54,19 @@ object Week7Examples {
   /** Newton's method for sqrt **/
   
   def sqrtStream(x:Double):Stream[Double] = {
-	  def improve(guess:Double):Double = {
-	     (x/guess + guess)/2
-	  }
+    def improve(guess:Double):Double = {
+       (x/guess + guess)/2
+    }
     
-	  // kind of strange, appliying a map operation on a value we are about to define
-	  lazy val guesses:Stream[Double]  = improve(1) #:: guesses.map(improve)
-	  guesses
+    // kind of strange, appliying a map operation on a value we are about to define
+    lazy val guesses:Stream[Double]  = improve(1) #:: guesses.map(improve)
+    guesses
   }
   
   // decide when to terminate calculating square roots
   def isGoodEnough(guess:Double,target:Double):Boolean = {
     
-	  math.abs((guess*guess)-target) <0.00001  
+    math.abs((guess*guess)-target) <0.00001  
   }
   
 }

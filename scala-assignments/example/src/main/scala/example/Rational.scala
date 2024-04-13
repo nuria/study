@@ -3,7 +3,7 @@ package example
 
 object rationals{
   
-  def main(args:Array[String]){
+  def main(args:Array[String])= {
     val x = new Rational(1,3);
     var y = new Rational(5,7);
     var z = new Rational(3,2);

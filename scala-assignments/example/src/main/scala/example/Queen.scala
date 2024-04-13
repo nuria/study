@@ -8,7 +8,7 @@ package example
 object Queen {
 
   
-  def main(args:Array[String]){
+  def main(args:Array[String])={
     println(nqueens(4))
   }
   

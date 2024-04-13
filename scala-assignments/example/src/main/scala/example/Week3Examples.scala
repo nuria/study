@@ -3,7 +3,7 @@ package example
 /** object here means that Week3Examples is a singleton **/
 object Week3Examples {
 
-  def main( args:Array[String]){
+  def main( args:Array[String])={
     val tree = new NonEmpty(10,Empty,Empty);
     val tree2 = tree.incl(2)
     println("tree1 contains2"+tree.contains(2))

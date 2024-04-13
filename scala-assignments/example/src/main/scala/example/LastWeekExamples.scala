@@ -2,7 +2,7 @@ package example
 
 object LastWeekExamples {
   
-  def main(args: Array[String]){
+  @main def _main(args: Array[String]) = {
   /*  val newList = removeAt(List(1,2,3,4),1)
     println(newList)
     val sortedMaybe = mergeSort(List(2,1,3,7,9,4));
@@ -103,10 +103,10 @@ object LastWeekExamples {
    //happy case
     def _removeAt(before:List[T],after:List[T],k:Int):List[T] = {
 
-    	if (k==0) before ++ after.tail
-    	else {
-      	  _removeAt(before ++ List(after.head),after.tail,k-1)
-    	}
+      if (k==0) before ++ after.tail
+      else {
+          _removeAt(before ++ List(after.head),after.tail,k-1)
+      }
     }
     
     _removeAt(Nil,l1,n)
@@ -118,9 +118,9 @@ object LastWeekExamples {
     if (l==Nil) return Nil
     val len:Int = l.length
     l match  {
-    	case List(x) => List(x)
-    	case x::xs => {
- 			merge(mergeSort((l take (len/2))),mergeSort((l drop len/2)))((x:Int,y:Int)=>x < y)
+      case List(x) => List(x)
+      case x::xs => {
+       merge(mergeSort((l take (len/2))),mergeSort((l drop len/2)))((x:Int,y:Int)=>x < y)
      }
     }
   }
@@ -192,8 +192,8 @@ object LastWeekExamples {
       // outside the class
       
       def squareElements(xs:List[Int]):List[Int] ={
-    		  
-    		  map(xs, (x:Int) => x * x)
+          
+          map(xs, (x:Int) => x * x)
       }
       
       
@@ -245,13 +245,13 @@ object LastWeekExamples {
        
         
         def walkList(l:List[List[T]]):List[(T,Int)] = {
-        	l match {
-        		case Nil =>Nil
-        		case x::xt => {
-        			val encodedListElement = (x.head, x.length)
-        			encodedListElement :: walkList(xt);
-        		} 
-        	}
+          l match {
+            case Nil =>Nil
+            case x::xt => {
+              val encodedListElement = (x.head, x.length)
+              encodedListElement :: walkList(xt);
+            } 
+          }
         }
          walkList(pack(xs))
        }

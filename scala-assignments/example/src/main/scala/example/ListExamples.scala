@@ -2,7 +2,7 @@ package example
 
 object ListExamples {
 
-  def main(args:Array[String]) {
+  def main(args:Array[String]) ={
     val s = singleton[Int](1);
    // println(s)
     val t =singleton(true)
@@ -52,12 +52,12 @@ object ListExamples {
     object List {
        
       
-    	def apply (x:Int,y:Int)=new Cons(x,new Cons(y,new Nil[Int]))
+      def apply (x:Int,y:Int)=new Cons(x,new Cons(y,new Nil[Int]))
        
   
       
   
-    	   def apply (x:Int) = new Cons(x,new Nil[Int])
+         def apply (x:Int) = new Cons(x,new Nil[Int])
        
   
       

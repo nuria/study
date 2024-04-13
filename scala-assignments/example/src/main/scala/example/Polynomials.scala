@@ -3,7 +3,7 @@ package example
 object Polynomials {
 
   
-  def main(args:Array[String]){
+  def main(args:Array[String])= {
     val p1 = new Poly(Map(1 ->1, 2 ->2,3->3));
     val p2 = new Poly(Map(0->1,1->1));
     
@@ -14,16 +14,16 @@ object Polynomials {
   /**
    * Polynomials can be represented as a map of 
    * exponents to coefficients so 1+x+56x2
-	 would be 0->1, 1->1, 2->56
-	 
+   would be 0->1, 1->1, 2->56
+   
    */
   
   class Poly(val terms0:Map[Int,Double]) {
   
     val terms:Map[Int,Double] = terms0.withDefaultValue(0.0)
     
-  	def add(other:Poly):Poly={
-	  new Poly(other.terms.foldLeft(this.terms)(addTerm))
+    def add(other:Poly):Poly={
+    new Poly(other.terms.foldLeft(this.terms)(addTerm))
   }
     
     
